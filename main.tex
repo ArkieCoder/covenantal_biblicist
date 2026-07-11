@@ -1,0 +1,77 @@
+\documentclass[justified, nobib]{tufte-handout}
+
+\usepackage{verse, gmverse}
+\usepackage{alltt}
+\usepackage{marginfix}
+\usepackage[style=verbose]{biblatex}
+\addbibresource{references.bib}
+\usepackage{qrcode}
+\usepackage[fontsize=9pt]{fontsize}
+\linespread{1.25}
+
+%% QR codes instead of URLs in citations
+\DeclareFieldFormat{url}{
+  \par\vspace{2pt}
+  {\centering\qrcode[height=4.5em, level=H]{#1}\par}
+}
+
+\renewbibmacro*{url+urldate}{
+  \iffieldundef{url}{}{
+    \printfield{url}\nopunct
+  }
+}
+
+%% Custom commands
+\newcommand{\biblever}[1]{(\textsc{\MakeLowercase{#1}})}
+
+\newcommand{\scriptref}[1]{%
+  \\ \hspace*{\fill} --#1%
+}
+
+\newcommand{\scripture}[2]{%
+  \begin{quote}
+  #1%
+  \scriptref{#2}%
+  \end{quote}%
+}
+
+\geometry{
+  left=0.5in,
+  textwidth=33pc,
+  marginparsep=1pc,
+  marginparwidth=11pc,
+  bottom=0.5in
+}
+\title{Reach Men, Reach Families}
+\author{Jason Reeves (July 2026)}
+\date{}
+
+\begin{document}
+\maketitle
+\extrafloats{100}
+
+\begin{abstract}
+The purpose of this paper is to propose a ministry strategy for churches in 21st century America.  That ministry strategy involves focusing on reaching and discipling men, and prioritizing their spiritual formation with the end goal that they become true shepherds and spiritual leaders within their families.  This is not to the exclusion of ministering to women and children within the congregation -- rather, behind this proposal is a desire to work \textit{within} God's established order, to more effectively minister to the \textit{entire congregation}, but to do so in ways which comport with God's ways. 
+
+This order was established at creation, and has been reiterated in many ways throughout the history of God's dealings with His people.  Working \textit{against} this creation order invites discord and disorder.  Working \textit{within} God's prescribed boundaries promises fruitfulness and growth -- not only to the men being enabled and equipped to properly lead their families, but also to their wives and their children to whom they have been given the task to minister.  The roles of parents in general and fathers in particular are non-transferable roles.  Well-meaning churches cannot abrogate Christian parents of their responsibilities before God, and would do well not to step in and "do the job" for the deficient parents in their midst.  Rather, the response should be equipping and discipleship of these parents so that they can better carry out their duties.  The church may assist, but may not subsume the role of parents.
+
+We will look at the data regarding changing church demographics and influences, state the problems indicated by this data, and then propose solutions based on God's word.
+\end{abstract}
+
+\newthought{In many ways, the prosperous western church} has been on the decline since the beginning of the 20th century.  J. Gresham Machen wrote over a century ago about this decline, and his eerily prescient characterization of the problem demonstrates the relevance of his work even today.\footcite{machen1923}  The church has been battered by \textit{all four} waves of feminism, by various homosexual movements, transgender insanity, and, most recently, ESG\footnote{Environmental, Social, and Governance}, DEI\footnote{Diversity, Equity, and Inclusion}, and a weird principle of "safety first" in the face of global "pandemics" that many believed should override the mandate to carry out the public worship of God.  Though these most recent ideas definitely took a deeper root in corporate America than in churches, the effects of these philosophies upon the church at large cannot be denied.  Churches not scarred by embracing such ideologies (of course, \textit{contra} scripture), have been battle hardened by having to beat back these worldly philosophies.  Some churches have unfortunately \textit{over}corrected, and have been damaged as a result.
+
+One of the ways the culture at large has been reflected in modern churches is in the overall feminization of the church.  Many observers have noted that throughout the 20th century, church architecture, design, decor, as well as worship styles and musical choices, have tended more to the feminine than the masculine.  Church programming has been engineered to suit feminine tastes.  "Soft men", many of whom are not functioning as the family shepherds God has called them to be, have been more and more preferred as elders and pastors.  The so-called Eleventh Commandment, "thou shalt be nice", manufactured though it is, has become more important than God's own Decalogue.  
+
+Even in churches which have rejected the most flagrant violations indicated by the rebellion of the 20th century: allowing women to preach, embracing the social justice movement, affirming homosexuals in their sin, etc., the pulse and current of the culture can be felt.  Men may feel weak or wholly inadequate to shepherd their families.  Taking a cue from the culture, they may feel like being assertive and taking authority, even God-ordained authority, is somehow "toxic".  Their wives, and I say this to their shame, their very \textit{elders}, may also work to dampen their enthusiasm to simply shepherd their families as God has commanded.  This disorder is the unfortunate result of being discipled by the \textit{culture} moreso than by God's holy word.  
+
+\section{The Data}
+Modern western churches overwhelmingly favor a passive version of masculinity, assuming they acknowledge masculinity at all.  As a result, men often "check out" of modern church.  Men who stay are encouraged in passivity and many don't lead their families well.  Men, who are called by God to minister to their wives and to raise their children in the faith, are replaced by women's ministries and youth ministries in a vain attempt to fill the gap, but the data shows these efforts do not achieve the intended result, because at the root what's being ignored is God's covenant order.
+
+
+
+\section{The Problem}
+Churches err when they try to circumvent God's covenant order as well as violate the concept of sphere sovereignty.  The Bible teaches male headship. Although men and women are of equal worth before God, they have different callings based upon immutable biological and spiritual characteristics.\footnote{This biblical way of understanding gender roles and differences is called \textit{complementarianism}, meaning to indicate that men and women were created to \textit{complement} each other, each making up for the inherent deficiencies in the other.  Throughout this discussion, I'll be using \textit{gender} and \textit{sex} as synonyms recognizing immutable biological and spiritual characteristics, not social constructs.  The notion that one's God-given gender is merely a "social construct" is anathema.}  The role God has chosen for men is that of the head, or leader within families, churches, and indeed civilization itself.  We have to work \textit{within} the frameworks God has provided for us, or else we risk distorting God's truth, not to mention doing harm to ourselves and others.
+
+\section{The Solution}
+Churches should focus on and prioritize ministry to men in order to build strong families and strong churches.  Reaching men reaches everyone.  By working \textit{along with} God's design, we will be able to do His work more effectively.  It's already hard enough to do God's work in this world, but we make it harder when we "kick against the pricks".  
+\end{document}
