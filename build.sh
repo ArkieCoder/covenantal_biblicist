@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Build canonical version (full tufte layout)
 pdflatex main.tex
 biber main
 pdflatex main.tex
