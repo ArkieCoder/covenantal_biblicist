@@ -41,6 +41,20 @@ build_article() {
     # Set CropBox per page: tight to content bounds (preserves annotations)
     "$CROPCBOX" main.pdf "$name-embed.pdf"
 
+    # Tablet variant
+    pdflatex "\def\tabletversion{} \input main.tex"
+    biber main
+    pdflatex "\def\tabletversion{} \input main.tex"
+    pdflatex "\def\tabletversion{} \input main.tex"
+    "$CROPCBOX" main.pdf "$name-tablet.pdf"
+
+    # Mobile variant
+    pdflatex "\def\mobileversion{} \input main.tex"
+    biber main
+    pdflatex "\def\mobileversion{} \input main.tex"
+    pdflatex "\def\mobileversion{} \input main.tex"
+    "$CROPCBOX" main.pdf "$name-mobile.pdf"
+
     rm -vf main.pdf main.bcf main.out main.aux main.blg main.bbl main.log main.run.xml
   )
 
