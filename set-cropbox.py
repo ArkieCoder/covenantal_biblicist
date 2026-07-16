@@ -7,7 +7,7 @@ import sys
 
 pad = 2
 input_pdf = sys.argv[1] if len(sys.argv) > 1 else "main.pdf"
-output_pdf = sys.argv[2] if len(sys.argv) > 2 else "reach_men_reach_families-embed.pdf"
+output_pdf = sys.argv[2] if len(sys.argv) > 2 else input_pdf.replace(".pdf", "-embed.pdf")
 
 result = subprocess.run(
     ["gs", "-sDEVICE=bbox", "-dBATCH", "-dNOPAUSE", "-sOutputFile=/dev/null", input_pdf],

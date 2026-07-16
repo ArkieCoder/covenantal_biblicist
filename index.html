@@ -25,54 +25,27 @@
       letter-spacing: 0.1em;
       color: #f5f5f5;
     }
-    #adobe-dc-view { width: 90%; max-width: 1200px; margin: 0 auto; padding-top: 100px; padding-bottom: 120px; height: calc(100vh - 100px); }
-    #download-btn {
-      position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 101;
-      padding: 0.6rem 2rem;
-      background: #1a1a2e;
-      color: #f5f5f5;
-      font-family: Georgia, serif;
-      font-size: 0.9rem;
-      text-decoration: none;
-      border: 2px solid #f5f5f5;
-      border-radius: 4px;
+    #content {
+      max-width: 700px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
     }
-    #download-btn:hover { background: #2a2a3e; }
-    #footer-title {
-      position: fixed;
-      bottom: 32px;
-      left: 0;
-      width: 50%;
-      text-align: center;
-      z-index: 101;
-      font-size: 1.4rem;
+    #content h2 {
+      font-size: 1.3rem;
       font-weight: normal;
-      font-variant: small-caps;
-      font-family: "Copperplate", "Copperplate Gothic Light", "Georgia", serif;
-      letter-spacing: 0.1em;
-      color: #f5f5f5;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      pointer-events: none;
+      margin: 2rem 0 0.4rem;
     }
-    #footer-title.visible {
-      transform: translateY(0);
-      opacity: 1;
+    #content h2 a {
+      color: #1a1a2e;
+      text-decoration: none;
     }
-    #page-cover {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 100px;
-      background: linear-gradient(to bottom, transparent 0%, var(--gunmetal) 15px);
-      z-index: 100;
-      pointer-events: none;
+    #content h2 a:hover {
+      text-decoration: underline;
+    }
+    #content p {
+      color: #555;
+      font-size: 0.95rem;
+      margin: 0 0 2rem;
     }
   </style>
 </head>
@@ -80,33 +53,12 @@
   <div id="header">
     <h1>Covenantal Biblicist</h1>
   </div>
-  <div id="adobe-dc-view"></div>
-  <a id="download-btn" href="reach_men_reach_families.pdf" download>Download PDF</a>
-  <div id="footer-title">Covenantal Biblicist</div>
-  <div id="page-cover"></div>
+  <div id="content">
+    <h2><a href="articles/reach_men_reach_families/index.html">Reach Men, Reach Families</a></h2>
+    <p>A ministry strategy for reaching and discipling men to lead their families.</p>
 
-  <script src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
-  <script type="text/javascript">
-    document.addEventListener("adobe_dc_view_sdk.ready", function () {
-      var adobeDCView = new AdobeDC.View({clientId: "bd4cb7ccbcdc4940adb98b75683d410a", divId: "adobe-dc-view"});
-      adobeDCView.previewFile(
-        {
-          content: {location: {url: "reach_men_reach_families-embed.pdf"}},
-          metaData: {fileName: "reach_men_reach_families.pdf"}
-        },
-        {embedMode: "IN_LINE"}
-      );
-    });
-    var footerTitle = document.getElementById("footer-title");
-    var header = document.getElementById("header");
-    window.addEventListener("scroll", function () {
-      var headerBottom = header.getBoundingClientRect().bottom;
-      if (headerBottom < 0) {
-        footerTitle.classList.add("visible");
-      } else {
-        footerTitle.classList.remove("visible");
-      }
-    });
-  </script>
+    <h2><a href="articles/voting_in_elder_led_churches/index.html">Voting in Elder-led Churches: Six Duties</a></h2>
+    <p>The duties of church members and elders with regard to voting on church matters.</p>
+  </div>
 </body>
 </html>
