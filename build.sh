@@ -7,6 +7,9 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ARTICLES_DIR="$SCRIPT_DIR/articles"
+TEMPLATE_DIR="$SCRIPT_DIR"
+TEMPLATE="article-template.html.j2"
+RENDER="$SCRIPT_DIR/render_template.py"
 CROPCBOX="$SCRIPT_DIR/set-cropbox.py"
 
 build_article() {
@@ -17,6 +20,9 @@ build_article() {
 
   (
     cd "$dir" || exit 1
+
+    # Generate article index.html from Jinja2 template
+    "$RENDER" "$TEMPLATE_DIR" "$TEMPLATE" "$name" > index.html
 
     # Canonical version (full tufte layout)
     pdflatex main.tex

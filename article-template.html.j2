@@ -81,7 +81,7 @@
     <h1>Covenantal Biblicist</h1>
   </div>
   <div id="adobe-dc-view"></div>
-  <a id="download-btn" href="reach_men_reach_families.pdf" download>Download PDF</a>
+  <a id="download-btn" href="{{ article_name }}.pdf" download>Download PDF</a>
   <div id="footer-title">Covenantal Biblicist</div>
   <div id="page-cover"></div>
 
@@ -91,8 +91,8 @@
       var adobeDCView = new AdobeDC.View({clientId: "bd4cb7ccbcdc4940adb98b75683d410a", divId: "adobe-dc-view"});
       adobeDCView.previewFile(
         {
-          content: {location: {url: "reach_men_reach_families-embed.pdf"}},
-          metaData: {fileName: "reach_men_reach_families.pdf"}
+          content: {location: {url: "{{ article_name }}-embed.pdf"}},
+          metaData: {fileName: "{{ article_name }}.pdf"}
         },
         {embedMode: "IN_LINE"}
       );
