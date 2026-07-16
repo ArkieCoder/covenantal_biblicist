@@ -5,12 +5,15 @@
 - **Type**: LaTeX document project using `tufte-handout` class
 - **Purpose**: Theological paper on complementarian ministry strategy
 - **Build System**: pdflatex + biber via `build.sh`
-- **Output**: `reach_men_reach_families.pdf`
+- **Output**: `reach_men_reach_families.pdf` (canonical) and `reach_men_reach_families-embed.pdf` (web embed)
+- **Web Viewer**: `index.html` using Adobe PDF Embed API
 
 ## Document Structure
 
 ### Section Hierarchy
-- Only `\section{}` is used (no `\subsection`, `\subsubsection`, `\paragraph`, or `\subparagraph`)
+- `\section{}` for top-level sections (e.g., "The Data", "The Problem", "The Solution")
+- `\subsection{}` for book reviews within "The Data" section
+- No `\subsubsection`, `\paragraph`, or `\subparagraph`
 - Sections use Title Case for names
 - Unnumbered by default (tufte-handout behavior)
 - Blank lines precede and follow each `\section` command
@@ -122,7 +125,7 @@ New or loaded terms are defined in `\footnote{}` rather than inline:
 
 ### Comment Style
 - `%%` double-percent comments for section dividers in preamble
-- Single `%` not used in the file
+- Single `%` used at end of lines in macro definitions to suppress spurious whitespace
 
 ### Whitespace Conventions
 - Single blank line between logical blocks in preamble
@@ -149,12 +152,21 @@ rm -vf main.bcf main.out main.aux main.blg main.bbl main.log main.run.xml
 mv main.pdf reach_men_reach_families.pdf
 ```
 
+### Embed Version
+The embed build compiles with `\def\embedversion{}` to produce `reach_men_reach_families-embed.pdf`:
+- `\pagestyle{empty}` suppresses headers/footers
+- `\newpage` before each `\section` starts content on a fresh page
+- `\enlargethispage{5\baselineskip}` prevents overflow on dense pages
+- `set-cropbox.py` uses Ghostscript bbox detection + pikepdf to set per-page CropBox, trimming whitespace while preserving annotations
+
 ### Dependencies
 - TeX distribution (TeX Live/MacTeX) with:
   - `pdflatex`
   - `biber`
   - `tufte-handout` document class
   - All packages listed above
+- `ghostscript` (for bounding box detection)
+- `pikepdf` (for CropBox manipulation)
 
 ## Content Patterns
 
@@ -180,8 +192,8 @@ mv main.pdf reach_men_reach_families.pdf
 
 ## Notes for Editing
 
-- The document is a **draft** - "Data" section lacks actual citations/data
-- Bibliography contains only one entry (Machen, 1923)
+- The document is a **draft** - "The Problem" and "The Solution" sections are skeletal
+- Bibliography contains 7 entries; only Murrow is cited extensively so far
 - `\biblever` and `\scripture` commands are defined but not yet used
 - `verse`, `gmverse`, and `alltt` packages are loaded but unused
 - QR code feature is set up but unused (no URLs in bibliography yet)
