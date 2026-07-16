@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 pad = 2
+MIN_HEIGHT = 200
 input_pdf = sys.argv[1] if len(sys.argv) > 1 else "main.pdf"
 output_pdf = sys.argv[2] if len(sys.argv) > 2 else input_pdf.replace(".pdf", "-embed.pdf")
 
@@ -18,5 +19,8 @@ pdf = pikepdf.open(input_pdf)
 for i, page in enumerate(pdf.pages):
     lry = max(0, float(bboxes[i][2]) - pad)
     ury = float(bboxes[i][4]) + pad
+    height = ury - lry
+    if height < MIN_HEIGHT:
+        lry = max(0, ury - MIN_HEIGHT)
     page.CropBox = pikepdf.Array([0, lry, 612, ury])
 pdf.save(output_pdf)
