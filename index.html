@@ -4,140 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Covenantal Biblicist</title>
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { margin: 0; font-family: Georgia, serif; background: #fff; }
+    :root { --gunmetal: #2c3539; }
+    #header {
+      background: linear-gradient(to bottom, var(--gunmetal) calc(100% - 15px), transparent 100%);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 4.5rem;
+      padding-bottom: 0.8rem;
+    }
+    #header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: normal;
+      font-variant: small-caps;
+      font-family: "Copperplate", "Copperplate Gothic Light", "Georgia", serif;
+      letter-spacing: 0.1em;
+      color: #f5f5f5;
+    }
+    #content {
+      max-width: 700px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+    #content h2 {
+      font-size: 1.3rem;
+      font-weight: normal;
+      margin: 2rem 0 0.4rem;
+    }
+    #content h2 a {
+      color: #1a1a2e;
+      text-decoration: none;
+    }
+    #content h2 a:hover {
+      text-decoration: underline;
+    }
+    #content p {
+      color: #555;
+      font-size: 0.95rem;
+      margin: 0 0 2rem;
+    }
+  </style>
 </head>
 <body>
   <div id="header">
-    <h1><a href="index.html">Covenantal Biblicist</a></h1>
-    <nav>
-      <a href="tags/">Tags</a>
-    </nav>
+    <h1>Covenantal Biblicist</h1>
   </div>
   <div id="content">
-    <div id="controls">
-      <input type="text" id="search" placeholder="Search articles...">
-      <select id="sort">
-        <option value="date-desc">Newest first</option>
-        <option value="date-asc">Oldest first</option>
-        <option value="title-asc">Title A-Z</option>
-        <option value="title-desc">Title Z-A</option>
-        <option value="author">By author</option>
-      </select>
-    </div>
-    <div id="articles"></div>
-    <div id="no-results">No articles found.</div>
+    <h2><a href="articles/reach_men_reach_families/index.html">Reach Men, Reach Families</a></h2>
+    <p>A ministry strategy for reaching and discipling men to lead their families.</p>
+
+    <h2><a href="articles/voting_in_elder_led_churches/index.html">Voting in Elder-led Churches: Six Duties</a></h2>
+    <p>The duties of church members and elders with regard to voting on church matters.</p>
   </div>
-
-  <script>
-    var articles = [{"title": "Reach Men, Reach Families", "author": "Jason Reeves", "date": "2026-07-16", "status": "published", "tags": ["complementarianism", "men's ministry", "family", "church", "masculinity"], "description": "A ministry strategy for reaching and discipling men to lead their families.", "abstract": "The purpose of this paper is to propose a ministry strategy for churches in 21st century America. That ministry strategy involves focusing on reaching and discipling men, and prioritizing their spiritual formation with the end goal that they become true shepherds and spiritual leaders within their families. This is not to the exclusion of ministering to women and children within the congregation -- rather, behind this proposal is a desire to work <em>within</em> God's established order, to more effectively minister to the <em>entire congregation</em>, but to do so in ways which comport with God's ways. This order was established at creation, and has been reiterated in many ways throughout the history of God's dealings with His people. Working <em>against</em> this creation order invites discord and disorder. Working <em>within</em> God's prescribed boundaries promises fruitfulness and growth -- not only to the men being enabled and equipped to properly lead their families, but also to their wives and their children to whom they have been given the task to minister. The roles of parents in general and fathers in particular are non-transferable roles. Well-meaning churches cannot abrogate Christian parents of their responsibilities before God, and would do well not to step in and \"do the job\" for the deficient parents in their midst. Rather, the response should be equipping and discipleship of these parents so that they can better carry out their duties. The church may assist, but may not subsume the role of parents. We will look at the data regarding changing church demographics and influences, state the problems indicated by this data, and then propose solutions based on God's word.", "url": "articles/reach_men_reach_families/index.html", "display_date": "July 16, 2026", "dir_name": "reach_men_reach_families"}, {"title": "Voting in Elder-led Churches: Six Duties", "author": "Jason Reeves", "date": "2026-06-24", "status": "published", "tags": ["church governance", "elders", "voting", "Baptist", "1689 confession"], "description": "The duties of church members and elders with regard to voting on church matters.", "abstract": "This paper is a synthesis of teaching from Alexander Strauch in his book, <em>Recovering Biblical Eldership</em> as well as material from 9Marks. The paper is from the perspective of churches which substantially adhere to the Second London Baptist Confession of Faith (1689) but has implications for all Christian churches working to exhibit biblical eldership in an age in which such a thing is more and more rare and unpopular. What are the duties of church members and elders with regard to voting on church matters? When and how is it permitted to vote against your elders? This paper will attempt to explore these questions. The six duties outlined in this paper with regard to voting on church matters are: <em>Duty to Defer</em>, <em>Duty of Diligence</em>, <em>Duty to Declare</em>, <em>Duty to Decline</em>, <em>Duty to Depart</em>, and the <em>Duty to Disencumber</em>.", "url": "articles/voting_in_elder_led_churches/index.html", "display_date": "June 24, 2026", "dir_name": "voting_in_elder_led_churches"}];
-
-    function formatDate(dateStr) {
-      var months = ['January','February','March','April','May','June',
-                    'July','August','September','October','November','December'];
-      var parts = dateStr.split('-');
-      return months[parseInt(parts[1],10)-1] + ' ' + parseInt(parts[2],10) + ', ' + parts[0];
-    }
-
-    function sortArticles(arts, criteria) {
-      var sorted = arts.slice();
-      switch(criteria) {
-        case 'date-desc':
-          sorted.sort(function(a,b) { return new Date(b.date) - new Date(a.date); });
-          break;
-        case 'date-asc':
-          sorted.sort(function(a,b) { return new Date(a.date) - new Date(b.date); });
-          break;
-        case 'title-asc':
-          sorted.sort(function(a,b) { return a.title.localeCompare(b.title); });
-          break;
-        case 'title-desc':
-          sorted.sort(function(a,b) { return b.title.localeCompare(a.title); });
-          break;
-        case 'author':
-          sorted.sort(function(a,b) { return a.author.localeCompare(b.author); });
-          break;
-      }
-      return sorted;
-    }
-
-    function renderArticles(arts) {
-      var container = document.getElementById('articles');
-      var noResults = document.getElementById('no-results');
-      container.innerHTML = '';
-
-      if (arts.length === 0) {
-        noResults.style.display = 'block';
-        return;
-      }
-      noResults.style.display = 'none';
-
-      arts.forEach(function(article) {
-        var card = document.createElement('div');
-        card.className = 'article-card';
-
-        var h2 = document.createElement('h2');
-        var link = document.createElement('a');
-        link.href = article.url;
-        link.textContent = article.title;
-        h2.appendChild(link);
-
-        var caret = document.createElement('span');
-        caret.className = 'caret';
-        caret.textContent = '\u25BE';
-        caret.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var abstract = card.querySelector('.abstract');
-          var isExpanded = abstract.style.display === 'block';
-          abstract.style.display = isExpanded ? 'none' : 'block';
-          this.classList.toggle('expanded');
-        });
-        h2.appendChild(caret);
-
-        var meta = document.createElement('div');
-        meta.className = 'meta';
-        meta.textContent = article.author + ' \u00B7 ' + formatDate(article.date);
-
-        var desc = document.createElement('p');
-        desc.className = 'description';
-        desc.textContent = article.description;
-
-        var abs = document.createElement('div');
-        abs.className = 'abstract';
-        abs.innerHTML = article.abstract;
-
-        card.appendChild(h2);
-        card.appendChild(meta);
-        card.appendChild(desc);
-        card.appendChild(abs);
-        container.appendChild(card);
-      });
-    }
-
-    var currentSort = 'date-desc';
-
-    document.getElementById('sort').addEventListener('change', function() {
-      currentSort = this.value;
-      renderArticles(sortArticles(articles, currentSort));
-    });
-
-    document.getElementById('search').addEventListener('input', function() {
-      var query = this.value.toLowerCase();
-      if (query.length < 2) {
-        renderArticles(sortArticles(articles, currentSort));
-        return;
-      }
-      var filtered = articles.filter(function(a) {
-        return a.title.toLowerCase().indexOf(query) !== -1 ||
-               a.description.toLowerCase().indexOf(query) !== -1 ||
-               a.author.toLowerCase().indexOf(query) !== -1 ||
-               (a.abstract && a.abstract.toLowerCase().indexOf(query) !== -1) ||
-               (a.tags && a.tags.some(function(t) { return t.toLowerCase().indexOf(query) !== -1; }));
-      });
-      renderArticles(filtered);
-    });
-
-    renderArticles(sortArticles(articles, currentSort));
-  </script>
 </body>
 </html>
