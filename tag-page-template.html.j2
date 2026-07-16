@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ tag }} - Covenantal Biblicist</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+  <div id="header">
+    <h1><a href="../../index.html">Covenantal Biblicist</a></h1>
+    <nav>
+      <a href="../index.html">Tags</a>
+    </nav>
+  </div>
+  <div id="content">
+    <a class="back-link" href="../index.html">&larr; All tags</a>
+    <h2>{{ tag }}</h2>
+    {% for article in articles %}
+    <div class="article-card">
+      <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
+      <div class="meta">{{ article.author }} &middot; {{ article.date }}</div>
+      <p class="description">{{ article.description }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

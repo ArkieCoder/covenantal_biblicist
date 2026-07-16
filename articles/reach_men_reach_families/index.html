@@ -14,7 +14,7 @@
     </nav>
   </div>
   <div id="adobe-dc-view"></div>
-  <a id="download-btn" href="voting_in_elder_led_churches.pdf" onclick="window.open(this.href); return false;">Download PDF</a>
+  <a id="download-btn" href="reach_men_reach_families.pdf" onclick="window.open(this.href); return false;">Download PDF</a>
   <div id="footer-title">Covenantal Biblicist</div>
   <div id="page-cover"></div>
 
@@ -28,7 +28,7 @@
       }
 
       var variant = getPdfVariant();
-      var pdfUrl = "voting_in_elder_led_churches-" + variant + ".pdf";
+      var pdfUrl = "reach_men_reach_families-" + variant + ".pdf";
 
       var adobeDCView = new AdobeDC.View({
         clientId: "bd4cb7ccbcdc4940adb98b75683d410a",
@@ -37,7 +37,7 @@
       adobeDCView.previewFile(
         {
           content: { location: { url: pdfUrl } },
-          metaData: { fileName: "voting_in_elder_led_churches.pdf" }
+          metaData: { fileName: "reach_men_reach_families.pdf" }
         },
         { embedMode: "IN_LINE" }
       );

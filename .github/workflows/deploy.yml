@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/configure-pages@v5
+      - uses: xu-cheng/latex-action@v4
+        with:
+          root_file: articles/reach_men_reach_families/main.tex
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install pikepdf jinja2 pyyaml
+      - name: Build all articles
+        run: ./build.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run Pagefind
+        run: npx pagefind --site _site/
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
