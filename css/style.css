@@ -145,6 +145,44 @@ body {
   font-size: 0.95rem;
   line-height: 1.6;
 }
+.abstract p {
+  margin: 0 0 0.8rem;
+  text-align: justify;
+}
+.abstract p:last-child {
+  margin-bottom: 0;
+}
+.abstract-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.3rem;
+}
+.abstract-footer p {
+  margin: 0;
+  flex: 1;
+}
+.read-more {
+  color: var(--link-color);
+  text-decoration: none;
+  font-variant: small-caps;
+  font-size: 1rem;
+  white-space: nowrap;
+  margin-left: 1rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.read-more .finger {
+  font-size: 1.6rem;
+}
+.read-more:hover {
+  text-decoration: underline;
+  background: #f5f5f5;
+}
 
 /* === Tags === */
 .tag-list {

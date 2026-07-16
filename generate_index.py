@@ -13,7 +13,7 @@ ARTICLES_DIR = SCRIPT_DIR / "articles"
 
 
 def extract_abstract(tex_path):
-    """Extract abstract from main.tex, convert LaTeX to approximate HTML."""
+    """Extract abstract from main.tex, convert LaTeX to approximate HTML with paragraphs."""
     content = tex_path.read_text()
     start = content.find(r'\begin{abstract}')
     end = content.find(r'\end{abstract}')
@@ -40,10 +40,18 @@ def extract_abstract(tex_path):
     raw = re.sub(r"``|''", '"', raw)
     raw = re.sub(r"`([^']*)'", r'"\1"', raw)
 
-    # Clean whitespace
-    raw = re.sub(r'\s+', ' ', raw).strip()
+    # Preserve paragraph breaks (blank lines in LaTeX = paragraph break)
+    # Split on one or more blank lines, then rejoin with </p><p>
+    paragraphs = re.split(r'\n\s*\n', raw)
+    # Clean each paragraph and wrap in <p> tags
+    cleaned = []
+    for p in paragraphs:
+        # Collapse internal whitespace to single space
+        p = re.sub(r'\s+', ' ', p).strip()
+        if p:
+            cleaned.append(f'<p>{p}</p>')
 
-    return raw
+    return ''.join(cleaned)
 
 
 def format_date(date_str):
@@ -74,7 +82,7 @@ def collect_articles():
         else:
             meta['abstract'] = ""
 
-        meta['url'] = f"articles/{article_dir.name}/index.html"
+        meta['url'] = f"articles/{article_dir.name}/"
         meta['display_date'] = format_date(meta['date'])
         meta['dir_name'] = article_dir.name
         articles.append(meta)

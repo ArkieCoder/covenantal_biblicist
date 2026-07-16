@@ -30,7 +30,7 @@ def collect_tags():
             'author': meta['author'],
             'date': meta['date'],
             'description': meta['description'],
-            'url': f"../../articles/{article_dir.name}/index.html"
+            'url': f"../../articles/{article_dir.name}/"
         }
 
         for tag in meta.get('tags', []):

@@ -9,9 +9,6 @@
 <body>
   <div id="header">
     <h1><a href="index.html">Covenantal Biblicist</a></h1>
-    <nav>
-      <a href="tags/">Tags</a>
-    </nav>
   </div>
   <div id="content">
     <div id="controls">
@@ -104,7 +101,31 @@
 
         var abs = document.createElement('div');
         abs.className = 'abstract';
-        abs.innerHTML = article.abstract;
+
+        // Parse abstract paragraphs
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = article.abstract;
+        var paragraphs = tempDiv.querySelectorAll('p');
+
+        // Add all paragraphs except the last
+        for (var i = 0; i < paragraphs.length - 1; i++) {
+          abs.appendChild(paragraphs[i]);
+        }
+
+        // Create footer with last paragraph and read-more on same line
+        if (paragraphs.length > 0) {
+          var footer = document.createElement('div');
+          footer.className = 'abstract-footer';
+          footer.appendChild(paragraphs[paragraphs.length - 1]);
+
+          var readMore = document.createElement('a');
+          readMore.className = 'read-more';
+          readMore.href = article.url;
+          readMore.innerHTML = 'Read <span class="finger">\u261E</span>';
+          footer.appendChild(readMore);
+
+          abs.appendChild(footer);
+        }
 
         card.appendChild(h2);
         card.appendChild(meta);
