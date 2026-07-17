@@ -42,7 +42,7 @@
       var pdfUrl = "{{ article_name }}-" + variant + ".pdf";
 
       var adobeDCView = new AdobeDC.View({
-        clientId: "bd4cb7ccbcdc4940adb98b75683d410a",
+        clientId: "{{ adobe_client_id }}",
         divId: "adobe-dc-view"
       });
       adobeDCView.previewFile(

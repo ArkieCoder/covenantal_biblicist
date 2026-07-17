@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: texlive/texlive:latest
+    env:
+      ADOBE_CLIENT_ID: ${{ secrets.ADOBE_CLIENT_ID }}
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
       fail-fast: false

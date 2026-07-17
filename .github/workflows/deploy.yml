@@ -4,7 +4,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: texlive/texlive:latest
+    env:
+      ADOBE_CLIENT_ID: ${{ secrets.ADOBE_CLIENT_ID }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/configure-pages@v5
@@ -27,6 +29,14 @@ jobs:
         run: ./build.sh
       - name: Run Pagefind
         run: npx pagefind --site _site/
+      - name: Commit built artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add articles/*/*.pdf articles/*/*.html index.html tags/
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "ci: update built artifacts [skip ci]"
+          git push
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
