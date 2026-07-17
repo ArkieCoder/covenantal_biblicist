@@ -60,6 +60,7 @@ def format_date(date_str):
 def collect_articles():
     """Collect all published articles with metadata."""
     articles = []
+    tag_counts = {}
     for article_dir in sorted(ARTICLES_DIR.iterdir()):
         if not article_dir.is_dir():
             continue
@@ -84,20 +85,29 @@ def collect_articles():
         meta['dir_name'] = article_dir.name
         articles.append(meta)
 
+        for tag in meta.get('tags', []):
+            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+
     # Sort by date descending
     articles.sort(key=lambda a: a['date'], reverse=True)
-    return articles
+
+    # Sort tags alphabetically
+    sorted_tags = [{'name': t, 'count': c} for t, c in sorted(tag_counts.items())]
+    return articles, sorted_tags
 
 
-def generate_index(articles):
+def generate_index(articles, tags):
     """Generate root index.html."""
     env = Environment(loader=FileSystemLoader(str(SCRIPT_DIR)))
     template = env.get_template("index-template.html.j2")
-    html = template.render(articles=json.dumps(articles, default=str))
+    html = template.render(
+        articles=json.dumps(articles, default=str),
+        tags=json.dumps(tags, default=str)
+    )
     (SCRIPT_DIR / "index.html").write_text(html)
-    print(f"Generated index.html ({len(articles)} articles)")
+    print(f"Generated index.html ({len(articles)} articles, {len(tags)} tags)")
 
 
 if __name__ == '__main__':
-    articles = collect_articles()
-    generate_index(articles)
+    articles, tags = collect_articles()
+    generate_index(articles, tags)

@@ -10,23 +10,37 @@
   <div id="header">
     <h1><a href="index.html">Covenantal Biblicist</a></h1>
   </div>
-  <div id="content">
-    <div id="controls">
-      <input type="text" id="search" placeholder="Search articles...">
-      <select id="sort">
-        <option value="date-desc">Newest first</option>
-        <option value="date-asc">Oldest first</option>
-        <option value="title-asc">Title A-Z</option>
-        <option value="title-desc">Title Z-A</option>
-        <option value="author">By author</option>
-      </select>
+  <div id="main-layout">
+    <div id="articles-col">
+      <div id="controls">
+        <input type="text" id="search" placeholder="Search articles...">
+        <select id="sort">
+          <option value="date-desc">Newest first</option>
+          <option value="date-asc">Oldest first</option>
+          <option value="title-asc">Title A-Z</option>
+          <option value="title-desc">Title Z-A</option>
+          <option value="author">By author</option>
+        </select>
+      </div>
+      <div id="articles"></div>
+      <div id="no-results">No articles found.</div>
     </div>
-    <div id="articles"></div>
-    <div id="no-results">No articles found.</div>
+    <div id="sidebar">
+      <h3>View articles filed under:</h3>
+      <div id="tag-cloud"></div>
+      <a href="tags/" class="view-all-tags">View All Tags</a>
+    </div>
   </div>
 
   <script>
     var articles = [{"title": "Reach Men, Reach Families", "author": "Jason Reeves", "date": "2026-07-16", "status": "published", "tags": ["complementarianism", "men's ministry", "family", "church", "masculinity"], "description": "A ministry strategy for reaching and discipling men to lead their families.", "abstract": "<p>The purpose of this paper is to propose a ministry strategy for churches in 21st century America. That ministry strategy involves focusing on reaching and discipling men, and prioritizing their spiritual formation with the end goal that they become true shepherds and spiritual leaders within their families. This is not to the exclusion of ministering to women and children within the congregation -- rather, behind this proposal is a desire to work <em>within</em> God's established order, to more effectively minister to the <em>entire congregation</em>, but to do so in ways which comport with God's ways.</p><p>This order was established at creation, and has been reiterated in many ways throughout the history of God's dealings with His people. Working <em>against</em> this creation order invites discord and disorder. Working <em>within</em> God's prescribed boundaries promises fruitfulness and growth -- not only to the men being enabled and equipped to properly lead their families, but also to their wives and their children to whom they have been given the task to minister. The roles of parents in general and fathers in particular are non-transferable roles. Well-meaning churches cannot abrogate Christian parents of their responsibilities before God, and would do well not to step in and \"do the job\" for the deficient parents in their midst. Rather, the response should be equipping and discipleship of these parents so that they can better carry out their duties. The church may assist, but may not subsume the role of parents.</p><p>We will look at the data regarding changing church demographics and influences, state the problems indicated by this data, and then propose solutions based on God's word.</p>", "url": "articles/reach_men_reach_families/", "display_date": "July 16, 2026", "dir_name": "reach_men_reach_families"}, {"title": "Voting in Elder-led Churches: Six Duties", "author": "Jason Reeves", "date": "2026-06-15", "status": "published", "tags": ["church governance", "elders", "voting", "church"], "description": "The duties of church members and elders with regard to voting on church matters.", "abstract": "<p>This paper is a synthesis of teaching from Alexander Strauch in his book, <em>Recovering Biblical Eldership</em> as well as material from 9Marks. The paper is from the perspective of churches which substantially adhere to the Second London Baptist Confession of Faith (1689) but has implications for all Christian churches working to exhibit biblical eldership in an age in which such a thing is more and more rare and unpopular. What are the duties of church members and elders with regard to voting on church matters? When and how is it permitted to vote against your elders? This paper will attempt to explore these questions.</p><p>The six duties outlined in this paper with regard to voting on church matters are: <em>Duty to Defer</em>, <em>Duty of Diligence</em>, <em>Duty to Declare</em>, <em>Duty to Decline</em>, <em>Duty to Depart</em>, and the <em>Duty to Disencumber</em>.</p>", "url": "articles/voting_in_elder_led_churches/", "display_date": "June 15, 2026", "dir_name": "voting_in_elder_led_churches"}];
+    var tags = [{"name": "church", "count": 2}, {"name": "church governance", "count": 1}, {"name": "complementarianism", "count": 1}, {"name": "elders", "count": 1}, {"name": "family", "count": 1}, {"name": "masculinity", "count": 1}, {"name": "men's ministry", "count": 1}, {"name": "voting", "count": 1}];
+
+    var tagAngles = [0, 90, 180, 270];
+    var tagColors = [
+      '#2c3539', '#3d4f5c', '#4a5d6b', '#566b79',
+      '#637a88', '#1a1a2e', '#2a3a4a', '#3a4a5a'
+    ];
 
     function formatDate(dateStr) {
       var months = ['January','February','March','April','May','June',
@@ -98,17 +112,14 @@
         var abs = document.createElement('div');
         abs.className = 'abstract';
 
-        // Parse abstract paragraphs
         var tempDiv = document.createElement('div');
         tempDiv.innerHTML = article.abstract;
         var paragraphs = tempDiv.querySelectorAll('p');
 
-        // Add all paragraphs except the last
         for (var i = 0; i < paragraphs.length - 1; i++) {
           abs.appendChild(paragraphs[i]);
         }
 
-        // Create footer with last paragraph and read-more on same line
         if (paragraphs.length > 0) {
           var footer = document.createElement('div');
           footer.className = 'abstract-footer';
@@ -128,6 +139,131 @@
         card.appendChild(abs);
         container.appendChild(card);
       });
+    }
+
+    function renderTagCloud(tagData) {
+      if (!tagData || tagData.length === 0) return;
+      var container = document.getElementById('tag-cloud');
+      var maxCount = Math.max.apply(null, tagData.map(function(t) { return t.count; }));
+      var minCount = Math.min.apply(null, tagData.map(function(t) { return t.count; }));
+      var minSize = 1.0;
+      var maxSize = 2.6;
+      var STEP = 1;
+      var GAP = 0;
+
+      function overlaps(a, b) {
+        return a.x - GAP < b.x + b.w && a.x + a.w + GAP > b.x &&
+               a.y - GAP < b.y + b.h && a.y + a.h + GAP > b.y;
+      }
+
+      var placed = [];
+      var items = tagData.map(function(tag, i) {
+        var fontSize;
+        if (maxCount === minCount) {
+          fontSize = (minSize + maxSize) / 2;
+        } else {
+          fontSize = minSize + (maxSize - minSize) * (tag.count - minCount) / (maxCount - minCount);
+        }
+        return {
+          tag: tag,
+          fontSize: fontSize,
+          angle: tagAngles[i % tagAngles.length],
+          color: tagColors[i % tagColors.length]
+        };
+      });
+
+      items.sort(function(a, b) { return b.fontSize - a.fontSize; });
+
+      container.style.position = 'relative';
+      container.style.minHeight = '200px';
+
+      items.forEach(function(item) {
+        var a = document.createElement('a');
+        a.href = 'tags/' + item.tag.name.replace(/ /g, '-').toLowerCase() + '/';
+        a.textContent = item.tag.name;
+        a.className = 'tag-cloud-link';
+        a.style.fontSize = item.fontSize.toFixed(2) + 'rem';
+        a.style.color = item.color;
+        a.style.position = 'absolute';
+        a.style.whiteSpace = 'nowrap';
+        container.appendChild(a);
+
+        var lw = a.offsetWidth;
+        var lh = a.offsetHeight;
+
+        a.style.transform = 'rotate(' + item.angle + 'deg)';
+
+        var vw, vh;
+        if (item.angle === 90 || item.angle === 270) {
+          vw = lh; vh = lw;
+        } else {
+          vw = lw; vh = lh;
+        }
+
+        var cx = container.offsetWidth / 2 - vw / 2;
+        var cy = container.offsetHeight / 2 - vh / 2;
+        var found = false;
+        var maxW = container.offsetWidth;
+
+        for (var r = 0; r < 1000 && !found; r++) {
+          var steps = Math.max(20, Math.floor(2 * Math.PI * r * 5 / Math.max(vw, vh)));
+          for (var s = 0; s < steps && !found; s++) {
+            var theta = (2 * Math.PI * s) / steps;
+            var tx = cx + r * STEP * Math.cos(theta);
+            var ty = cy + r * STEP * Math.sin(theta);
+
+            if (tx < -2 || tx + vw > maxW + 2) continue;
+
+            var candidate = { x: tx, y: ty, w: vw, h: vh };
+            var collision = false;
+            for (var p = 0; p < placed.length; p++) {
+              if (overlaps(candidate, placed[p].vb)) {
+                collision = true;
+                break;
+              }
+            }
+
+            if (!collision) {
+              var cssX, cssY;
+              if (item.angle === 90 || item.angle === 270) {
+                var d = (lw - lh) / 2;
+                cssX = tx - d;
+                cssY = ty + d;
+              } else {
+                cssX = tx;
+                cssY = ty;
+              }
+
+              a.style.left = cssX + 'px';
+              a.style.top = cssY + 'px';
+              placed.push({ el: a, vb: candidate });
+              found = true;
+            }
+          }
+        }
+      });
+
+      if (placed.length > 0) {
+        var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        placed.forEach(function(p) {
+          var v = p.vb;
+          if (v.x < minX) minX = v.x;
+          if (v.y < minY) minY = v.y;
+          if (v.x + v.w > maxX) maxX = v.x + v.w;
+          if (v.y + v.h > maxY) maxY = v.y + v.h;
+        });
+        var cloudW = maxX - minX;
+        var cloudH = maxY - minY;
+        var pad = 8;
+        container.style.height = (cloudH + pad * 2) + 'px';
+        var shiftX = (container.offsetWidth - cloudW) / 2 - minX;
+        var shiftY = pad - minY;
+        placed.forEach(function(p) {
+          var el = p.el;
+          el.style.left = (parseFloat(el.style.left) + shiftX) + 'px';
+          el.style.top = (parseFloat(el.style.top) + shiftY) + 'px';
+        });
+      }
     }
 
     var currentSort = 'date-desc';
@@ -154,6 +290,7 @@
     });
 
     renderArticles(sortArticles(articles, currentSort));
+    renderTagCloud(tags);
   </script>
 </body>
 </html>
