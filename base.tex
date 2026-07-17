@@ -2,7 +2,11 @@
 
 \usepackage{verse, gmverse}
 \usepackage{alltt}
-\usepackage{marginfix}
+\ifdefined\mobileversion\else
+  \ifdefined\tabletversion\else
+    \usepackage{marginfix}
+  \fi
+\fi
 \usepackage[style=verbose]{biblatex}
 \usepackage{qrcode}
 \usepackage[fontsize=9pt]{fontsize}
@@ -43,25 +47,29 @@
 }
 
 \ifdefined\mobileversion
-  \geometry{
-    left=0.25in,
-    textwidth=28pc,
-    marginparsep=0.5pc,
-    marginparwidth=6pc,
-    bottom=0.35in
+  \AtBeginDocument{%
+    \renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}%
+    \renewcommand{\small}{\fontsize{12pt}{15pt}\selectfont}%
+    \renewcommand{\footnotesize}{\fontsize{11pt}{14pt}\selectfont}%
+    \renewcommand{\scriptsize}{\fontsize{9pt}{12pt}\selectfont}%
+    \renewcommand{\large}{\fontsize{16pt}{20pt}\selectfont}%
+    \renewcommand{\Large}{\fontsize{18pt}{22pt}\selectfont}%
+    \normalsize
+    \justifying
   }
-  \fontsize{26pt}{32pt}\selectfont
 \fi
 
 \ifdefined\tabletversion
-  \geometry{
-    left=0.35in,
-    textwidth=30pc,
-    marginparsep=0.75pc,
-    marginparwidth=6pc,
-    bottom=0.4in
+  \AtBeginDocument{%
+    \renewcommand{\normalsize}{\fontsize{12pt}{15pt}\selectfont}%
+    \renewcommand{\small}{\fontsize{11pt}{14pt}\selectfont}%
+    \renewcommand{\footnotesize}{\fontsize{10pt}{13pt}\selectfont}%
+    \renewcommand{\scriptsize}{\fontsize{8pt}{11pt}\selectfont}%
+    \renewcommand{\large}{\fontsize{14pt}{18pt}\selectfont}%
+    \renewcommand{\Large}{\fontsize{16pt}{20pt}\selectfont}%
+    \normalsize
+    \justifying
   }
-  \fontsize{22pt}{28pt}\selectfont
 \fi
 
 \input{main.tex}
