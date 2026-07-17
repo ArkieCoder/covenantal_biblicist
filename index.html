@@ -95,10 +95,6 @@
         meta.className = 'meta';
         meta.textContent = article.author + ' \u00B7 ' + formatDate(article.date);
 
-        var desc = document.createElement('p');
-        desc.className = 'description';
-        desc.textContent = article.description;
-
         var abs = document.createElement('div');
         abs.className = 'abstract';
 
@@ -129,7 +125,6 @@
 
         card.appendChild(h2);
         card.appendChild(meta);
-        card.appendChild(desc);
         card.appendChild(abs);
         container.appendChild(card);
       });

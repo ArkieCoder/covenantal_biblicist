@@ -1,21 +1,166 @@
-# AGENTS.md - LaTeX Conventions and Patterns
+# AGENTS.md - LaTeX Blog Project Conventions
 
 ## Project Overview
 
-- **Type**: LaTeX document project using `tufte-handout` class
-- **Purpose**: Theological paper on complementarian ministry strategy
-- **Build System**: pdflatex + biber via `build.sh`
-- **Output**: `reach_men_reach_families.pdf` (canonical) and `reach_men_reach_families-embed.pdf` (web embed)
-- **Web Viewer**: `index.html` using Adobe PDF Embed API
+- **Type**: Multi-article blog using LaTeX (`tufte-handout` class) + Adobe PDF Embed API
+- **Purpose**: Theological papers on complementarian ministry and church governance
+- **Build System**: pdflatex + biber + Python generators via `build.sh`
+- **Output**: 4 PDF variants per article + generated index/tags + assembled site in `_site/`
+- **Web Viewer**: Jinja2 templates with Adobe PDF Embed API, Font Awesome icons
+- **Deployment**: GitHub Pages via GitHub Actions
 
-## Document Structure
+## Repository Structure
+
+```
+├── build.sh                          # Main build script
+├── set-cropbox.py                    # PDF CropBox setter (Ghostscript + pikepdf)
+├── render_template.py                # Jinja2 article template renderer
+├── generate_index.py                 # Root index.html generator
+├── generate_tags.py                  # Tag index + per-tag page generator
+├── article-template.html.j2          # Per-article PDF viewer template
+├── index-template.html.j2            # Root index template (search/sort/cards)
+├── tag-index-template.html.j2        # Tag listing page template
+├── tag-page-template.html.j2         # Per-tag article listing template
+├── css/style.css                     # Shared stylesheet
+├── articles/
+│   └── {article_name}/
+│       ├── main.tex                  # LaTeX source
+│       ├── metadata.yaml             # Article metadata
+│       ├── references.bib            # Bibliography
+│       └── index.html                # Generated article viewer page
+├── _site/                            # Assembled site for deployment (gitignored)
+├── tags/                             # Generated tag pages (gitignored)
+├── .github/workflows/
+│   ├── deploy.yml                    # Deploy to GitHub Pages on push to master
+│   └── pr-check.yml                  # Matrix build on PRs
+├── .gitignore
+└── TASKS.md                          # Implementation task list (untracked)
+```
+
+## Build System
+
+### Pipeline (`build.sh`)
+```bash
+./build.sh                    # Build all articles + generate index/tags + assemble site
+./build.sh {article_name}     # Build single article
+```
+
+Per article, `build.sh` produces 4 PDF variants:
+1. **Desktop** (`{name}.pdf`): `pdflatex main.tex` — canonical tufte layout
+2. **Embed** (`{name}-embed.pdf`): `\def\embedversion{}` — no headers, `\newpage` before sections, CropBox applied
+3. **Tablet** (`{name}-tablet.pdf`): `\def\tabletversion{}` — medium margins, 10pt font, CropBox applied
+4. **Mobile** (`{name}-mobile.pdf`): `\def\mobileversion{}` — narrow margins, 11pt font, CropBox applied
+
+Each variant gets its own pdflatex triple-pass + biber cycle.
+
+After article builds, `build.sh` runs:
+- `generate_index.py` → `index.html`
+- `generate_tags.py` → `tags/index.html` + `tags/{tag}/index.html`
+- `assemble_site()` → copies everything into `_site/`
+
+### Embed Version
+The embed build compiles with `\def\embedversion{}`:
+- `\pagestyle{empty}` suppresses headers/footers
+- `\newpage` before each `\section` starts content on a fresh page
+- `set-cropbox.py` uses Ghostscript bbox detection + pikepdf to set per-page CropBox
+
+### CropBox Logic (`set-cropbox.py`)
+- `pad = 2` (tight to content bounds)
+- `MIN_HEIGHT = 200` — pages with content < 200pt get expanded CropBox anchored at content top
+- This prevents the Adobe PDF viewer from clipping sparse pages (e.g., last page with short section)
+- Pages with content ≥ 200pt get tight cropping
+
+### Responsive LaTeX Geometry
+Conditional geometry blocks in each `main.tex` (after base `\geometry{}`, before `\title{}`):
+```latex
+\ifdefined\mobileversion
+  \geometry{left=0.25in, textwidth=28pc, marginparsep=0.5pc, marginparwidth=6pc, bottom=0.35in}
+  \fontsize{11pt}{14pt}\selectfont
+\fi
+
+\ifdefined\tabletversion
+  \geometry{left=0.35in, textwidth=30pc, marginparsep=0.75pc, marginparwidth=6pc, bottom=0.4in}
+  \fontsize{10pt}{12.5pt}\selectfont
+\fi
+```
+**Critical**: `marginparwidth` must be ≥6pc for mobile/tablet to avoid `marginfix` package errors with tufte-handout footnotes.
+
+### Dependencies
+- TeX distribution (TeX Live/MacTeX): `pdflatex`, `biber`, `tufte-handout`, all packages
+- Python 3: `pikepdf`, `jinja2`, `pyyaml`
+- `ghostscript` (for bounding box detection)
+- `pikepdf` (for CropBox manipulation)
+
+## Article Metadata (`metadata.yaml`)
+```yaml
+title: "Article Title"
+author: "Author Name"
+date: 2026-07-16
+status: published          # published | draft (drafts excluded from index/tags)
+tags:
+  - tag-name
+description: "One-line description."
+```
+
+## Template System
+
+### `render_template.py`
+Renders Jinja2 article template. Reads `metadata.yaml` and passes:
+- `article_name` — directory name (e.g., `reach_men_reach_families`)
+- `article_title` — from metadata (e.g., "Reach Men, Reach Families")
+- `article_description` — from metadata
+
+### Article Template (`article-template.html.j2`)
+- Loads shared CSS from `../../css/style.css`
+- Loads Font Awesome 6.5.1 from CDN
+- Header: "Covenantal Biblicist" linking to `../../` (root index)
+- Adobe PDF Embed API with responsive variant selection:
+  - `<600px` → mobile variant
+  - `600-1023px` → tablet variant
+  - `≥1023px` → embed variant
+- Footer bar (`#footer-bar`): 100px fixed bar with gradient
+  - Left: "Covenantal Biblicist" title (links to index, appears on scroll)
+  - Right: Icon row — Print (opens PDF), Email (dropdown: mailto + Gmail), Facebook, X
+- Share URLs use browser-native: `mailto:`, Gmail compose URL, Facebook share, X intent
+- Email icon has dropdown with "Mail client" (native) and "Gmail" options
+
+### Index Template (`index-template.html.j2`)
+- Search input + sort dropdown (date, title, author)
+- Expandable article cards with caret toggle
+- Abstracts rendered as multi-paragraph HTML with justified text
+- "Read ☞" button in flexbox footer aligned with last paragraph
+- Client-side filtering and sorting via JavaScript
+
+### Tag Templates
+- `tag-index-template.html.j2` — lists all tags with article counts
+- `tag-page-template.html.j2` — per-tag article listing with back link
+
+## CSS Conventions (`css/style.css`)
+
+### Color Variables
+```css
+--gunmetal: #2c3539;
+--link-color: #1a1a2e;
+--meta-color: #666;
+--text-color: #333;
+--muted-color: #555;
+--border-color: #ddd;
+--light-border: #eee;
+```
+
+### Key Patterns
+- `.abstract p` — justified text, paragraph spacing
+- `.abstract-footer` — flexbox for last paragraph + "Read ☞" button
+- `.read-more` — small-caps, bordered box, inline-flex with finger icon (U+261E)
+- `#footer-bar` — fixed 100px bar, flex, vertically centered content
+- `.share-email-wrap` — dropdown container for email options
+- `.share-email-menu` — popover menu above email icon
+
+## Document Structure (LaTeX)
 
 ### Section Hierarchy
-- `\section{}` for top-level sections (e.g., "The Data", "The Problem", "The Solution")
-- `\subsection{}` for book reviews within "The Data" section
+- `\section{}` for top-level sections (Title Case, unnumbered)
 - No `\subsubsection`, `\paragraph`, or `\subparagraph`
-- Sections use Title Case for names
-- Unnumbered by default (tufte-handout behavior)
 - Blank lines precede and follow each `\section` command
 
 ### Abstract
@@ -23,29 +168,24 @@
 - Multi-paragraph abstracts are supported and used
 
 ### Preamble Organization
-1. `\documentclass` with options
+1. `\documentclass[justified, nobib]{tufte-handout}`
 2. Package loading block
 3. Custom field formats (QR codes)
 4. Custom commands
-5. Geometry overrides
-6. Title metadata
+5. Base geometry override
+6. Conditional mobile/tablet geometry blocks
+7. Title metadata
 
 ## Custom Commands
 
-### `\biblever{#1}` (line 25)
-- **Purpose**: Format Bible verse references in small caps
-- **Behavior**: Wraps in parentheses, applies `\MakeLowercase`, renders in `\textsc`
-- **Usage**: `\biblever{gen. 1:1}` → `(GEN. 1:1)`
+### `\biblever{#1}`
+Format Bible verse references in small caps: `\biblever{gen. 1:1}` → `(GEN. 1:1)`
 
-### `\scriptref{#1}` (lines 27-29)
-- **Purpose**: Right-aligned scriptural attribution
-- **Behavior**: Line break + right-aligned em-dash citation
-- **Usage**: Called internally by `\scripture`
+### `\scriptref{#1}`
+Right-aligned scriptural attribution (called by `\scripture`)
 
-### `\scripture{text}{reference}` (lines 31-36)
-- **Purpose**: Block scripture quotations with attribution
-- **Behavior**: Wraps text in `quote` environment, appends right-aligned attribution
-- **Usage**: `\scripture{In the beginning...}{Genesis 1:1}`
+### `\scripture{text}{reference}`
+Block scripture quotations with attribution
 
 ## Package Usage
 
@@ -60,152 +200,47 @@
 | `qrcode` | - | QR code generation |
 | `fontsize` | `[fontsize=9pt]` | Base font size override |
 
-### Package Load Order
-Content packages first, then infrastructure, then utility packages.
-
 ## Citation/Bibliography Style
 
 - **Engine**: biber (not bibtex)
 - **Style**: `biblatex` with `style=verbose`
-  - First citation: full footnote citation
-  - Subsequent citations: shortened form
-- **Citation Command**: `\footcite{key}` (only citation command used)
+- **Citation Command**: `\footcite{key}`
 - **Resource File**: `references.bib`
-
-### QR Code Override
-URLs in citations render as QR codes instead of text:
-```latex
-\DeclareFieldFormat{url}{
-  \par\vspace{2pt}
-  {\centering\qrcode[height=4.5em, level=H]{#1}\par}
-}
-```
+- URLs render as QR codes via custom `\DeclareFieldFormat{url}`
 
 ## Typography Conventions
 
-### Font Settings
 - **Base size**: 9pt (via `fontsize` package)
-- **Line spread**: `\linespread{1.25}` (25% more vertical space)
-- **Effective leading**: 11.25pt
-
-### Geometry
-```latex
-\geometry{
-  left=0.5in,
-  textwidth=33pc,
-  marginparsep=1pc,
-  marginparwidth=11pc,
-  bottom=0.5in
-}
-```
-
-### Emphasis Patterns
-- **`\textit{}`**: Primary emphasis tool (used extensively)
+- **Line spread**: `\linespread{1.25}`
+- **`\textit{}`**: Primary emphasis (used extensively)
 - **`\textsc{}`**: Used in `\biblever` for verse references
-- **Bold (`\textbf{}`)**: Never used
-- **Underline**: Never used
+- **Bold/Underline**: Never used
 
-## Formatting Patterns
+## CI/CD (`.github/workflows/`)
 
-### Definition-in-Footnote Pattern
-New or loaded terms are defined in `\footnote{}` rather than inline:
-- ESG and DEI expanded in footnote
-- Complementarianism gets full paragraph footnote
+### `pr-check.yml`
+- Triggers on PRs to `master`
+- Uses `dorny/paths-filter` to detect changed articles
+- Matrix builds only changed articles (or all if shared files changed)
+- Runs Pagefind for search indexing
 
-### Inline Quotation
-- Double quotation marks (`"..."`) for direct phrases or scare quotes
-- No special quotation package loaded
-
-### Paragraph Style
-- Paragraphs separated by blank lines
-- No indentation of first paragraph after headings
-- Long, dense paragraphs with flowing essayistic style
-
-## LaTeX Coding Style
-
-### Comment Style
-- `%%` double-percent comments for section dividers in preamble
-- Single `%` used at end of lines in macro definitions to suppress spurious whitespace
-
-### Whitespace Conventions
-- Single blank line between logical blocks in preamble
-- Blank lines separate paragraphs in body
-- No structural indentation of LaTeX code
-
-### Macro Definitions
-- `%` at end of lines to suppress spurious whitespace
-- Arguments referenced as `#1`, `#2` consistently
-- Environments closed on same logical block with `%` after `\end`
-
-### Line Length
-- Source lines run as long as needed (no wrapping at specific column)
-
-## Build System
-
-### Pipeline
-```bash
-pdflatex main.tex      # First pass (resolves labels/references)
-biber main             # Process bibliography
-pdflatex main.tex      # Second pass (incorporates bibliography)
-pdflatex main.tex      # Third pass (resolves remaining cross-references)
-rm -vf main.bcf main.out main.aux main.blg main.bbl main.log main.run.xml
-mv main.pdf reach_men_reach_families.pdf
-```
-
-### Embed Version
-The embed build compiles with `\def\embedversion{}` to produce `reach_men_reach_families-embed.pdf`:
-- `\pagestyle{empty}` suppresses headers/footers
-- `\newpage` before each `\section` starts content on a fresh page
-- `\enlargethispage{5\baselineskip}` prevents overflow on dense pages
-- `set-cropbox.py` uses Ghostscript bbox detection + pikepdf to set per-page CropBox, trimming whitespace while preserving annotations
-
-### Dependencies
-- TeX distribution (TeX Live/MacTeX) with:
-  - `pdflatex`
-  - `biber`
-  - `tufte-handout` document class
-  - All packages listed above
-- `ghostscript` (for bounding box detection)
-- `pikepdf` (for CropBox manipulation)
+### `deploy.yml`
+- Triggers on push to `master`
+- Builds all articles, assembles site, deploys to GitHub Pages
 
 ## Content Patterns
 
 ### Argumentative Essay Structure
-1. Context/Background
-2. Data
-3. Problem
-4. Solution
+1. Context/Background → 2. Data → 3. Problem → 4. Solution
 
 ### Theological Vocabulary
-- "covenant order"
-- "sphere sovereignty"
-- "complementarianism"
-- "shepherd" (as a verb)
-
-### Latin Usage
-- `\textit{contra}` used for Latin phrases
-- May use more in expanded versions
-
-### Historical/Cultural Framing
-- Establishes historical context before current issues
-- References early 20th century (Machen) as foundation
+- "covenant order", "sphere sovereignty", "complementarianism", "shepherd" (as verb)
 
 ## Notes for Editing
 
-- The document is a **draft** - "The Problem" and "The Solution" sections are skeletal
-- Bibliography contains 7 entries; only Murrow is cited extensively so far
-- `\biblever` and `\scripture` commands are defined but not yet used
-- `verse`, `gmverse`, and `alltt` packages are loaded but unused
-- QR code feature is set up but unused (no URLs in bibliography yet)
-
-## Build Commands
-
-To compile the document:
-```bash
-bash build.sh
-```
-
-Or manually:
-```bash
-pdflatex main.tex && biber main && pdflatex main.tex && pdflatex main.tex
-```
+- Documents are **drafts** — "The Problem" and "The Solution" sections may be skeletal
+- `\biblever` and `\scripture` commands are defined but may not yet be used
+- `verse`, `gmverse`, and `alltt` packages are loaded but may be unused
+- QR code feature is set up but may be unused (no URLs in bibliography yet)
+- `_site/` and `tags/` are gitignored — generated output
+- `TASKS.md` is untracked — implementation task tracking

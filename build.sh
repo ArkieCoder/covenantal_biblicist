@@ -25,38 +25,40 @@ build_article() {
     # Generate article index.html from Jinja2 template
     "$RENDER" "$TEMPLATE_DIR" "$TEMPLATE" "$name" > index.html
 
+    export TEXINPUTS="$SCRIPT_DIR:$TEXINPUTS"
+
     # Canonical version (full tufte layout)
-    pdflatex main.tex
-    biber main
-    pdflatex main.tex
-    pdflatex main.tex
-    rm -vf main.bcf main.out main.aux main.blg main.bbl main.log main.run.xml
-    mv main.pdf "$name.pdf"
+    pdflatex base.tex
+    biber base
+    pdflatex base.tex
+    pdflatex base.tex
+    rm -vf base.bcf base.out base.aux base.blg base.bbl base.log base.run.xml
+    mv base.pdf "$name.pdf"
 
     # Embed version (no headers, newpage at sections, variable page heights via CropBox)
-    pdflatex "\def\embedversion{} \input main.tex"
-    biber main
-    pdflatex "\def\embedversion{} \input main.tex"
-    pdflatex "\def\embedversion{} \input main.tex"
+    pdflatex "\def\embedversion{} \input base.tex"
+    biber base
+    pdflatex "\def\embedversion{} \input base.tex"
+    pdflatex "\def\embedversion{} \input base.tex"
 
     # Set CropBox per page: tight to content bounds (preserves annotations)
-    "$CROPCBOX" main.pdf "$name-embed.pdf"
+    "$CROPCBOX" base.pdf "$name-embed.pdf"
 
     # Tablet variant
-    pdflatex "\def\tabletversion{} \input main.tex"
-    biber main
-    pdflatex "\def\tabletversion{} \input main.tex"
-    pdflatex "\def\tabletversion{} \input main.tex"
-    "$CROPCBOX" main.pdf "$name-tablet.pdf"
+    pdflatex "\def\tabletversion{} \input base.tex"
+    biber base
+    pdflatex "\def\tabletversion{} \input base.tex"
+    pdflatex "\def\tabletversion{} \input base.tex"
+    "$CROPCBOX" base.pdf "$name-tablet.pdf"
 
     # Mobile variant
-    pdflatex "\def\mobileversion{} \input main.tex"
-    biber main
-    pdflatex "\def\mobileversion{} \input main.tex"
-    pdflatex "\def\mobileversion{} \input main.tex"
-    "$CROPCBOX" main.pdf "$name-mobile.pdf"
+    pdflatex "\def\mobileversion{} \input base.tex"
+    biber base
+    pdflatex "\def\mobileversion{} \input base.tex"
+    pdflatex "\def\mobileversion{} \input base.tex"
+    "$CROPCBOX" base.pdf "$name-mobile.pdf"
 
-    rm -vf main.pdf main.bcf main.out main.aux main.blg main.bbl main.log main.run.xml
+    rm -vf base.pdf base.bcf base.out base.aux base.blg base.bbl base.log base.run.xml
   )
 
   echo "=== Done: $name ==="
