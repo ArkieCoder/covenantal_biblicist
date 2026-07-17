@@ -1,0 +1,70 @@
+name: PR Check
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changes.outputs.matrix }}
+      rebuild_all: ${{ steps.filter.outputs.shared }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared:
+              - 'build.sh'
+              - 'set-cropbox.py'
+              - 'article-template.html.j2'
+              - 'render_template.py'
+              - 'generate_index.py'
+              - 'generate_tags.py'
+              - 'index-template.html.j2'
+              - 'tag-index-template.html.j2'
+              - 'tag-page-template.html.j2'
+      - id: changes
+        run: |
+          CHANGED=$(git diff --name-only origin/master...HEAD | grep '^articles/' | cut -d/ -f2 | sort -u)
+          if [ "${{ steps.filter.outputs.shared }}" = "true" ] || [ -n "$CHANGED" ]; then
+            if [ "${{ steps.filter.outputs.shared }}" = "true" ]; then
+              ALL=$(ls -d articles/*/ 2>/dev/null | xargs -I{} basename {} | jq -R -s -c 'split("\n") | map(select(length > 0)) | map({article: .})')
+              echo "matrix=$ALL" >> $GITHUB_OUTPUT
+            else
+              MATRIX=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0)) | map({article: .})')
+              echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "matrix={\"article\":[]}" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: detect-changes
+    if: fromJson(needs.detect-changes.outputs.matrix).article | length > 0
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v6
+      - uses: xu-cheng/latex-action@v4
+        with:
+          root_file: articles/${{ matrix.article }}/main.tex
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install pikepdf jinja2 pyyaml
+      - name: Build article
+        run: ./build.sh ${{ matrix.article }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run Pagefind
+        run: npx pagefind --site _site/
