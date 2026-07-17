@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Generate tag index and per-tag pages from article metadata."""
 
+import os
 import yaml
 from pathlib import Path
+from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader
 
 SCRIPT_DIR = Path(__file__).parent
@@ -47,13 +49,20 @@ def collect_tags():
 
 def generate_tag_pages(tags):
     """Generate tag index and per-tag pages."""
+    build_id = os.environ.get("BUILD_ID", "")
+    build_iso = ""
+    if build_id:
+        build_iso = datetime.fromtimestamp(int(build_id), tz=timezone.utc).astimezone().isoformat()
+
     env = Environment(loader=FileSystemLoader(str(SCRIPT_DIR)))
 
     # Generate tag index
     tag_index_template = env.get_template("tag-index-template.html.j2")
     tag_names = sorted(tags.keys())
     html = tag_index_template.render(
-        tags=[{'name': t, 'count': len(tags[t])} for t in tag_names]
+        tags=[{'name': t, 'count': len(tags[t])} for t in tag_names],
+        build_id=build_id,
+        build_iso=build_iso
     )
     TAGS_DIR.mkdir(exist_ok=True)
     (TAGS_DIR / "index.html").write_text(html)
@@ -66,7 +75,9 @@ def generate_tag_pages(tags):
         tag_dir.mkdir(exist_ok=True)
         html = tag_page_template.render(
             tag=tag_name,
-            articles=tags[tag_name]
+            articles=tags[tag_name],
+            build_id=build_id,
+            build_iso=build_iso
         )
         (tag_dir / "index.html").write_text(html)
         print(f"Generated tags/{tag_dir.name}/index.html ({len(tags[tag_name])} articles)")

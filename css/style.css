@@ -422,3 +422,19 @@ body {
 /* === Utility === */
 em { font-style: italic; }
 strong { font-weight: bold; }
+
+/* === Build ID === */
+.build-id {
+  font-size: 0.6rem;
+  color: #aaa;
+  text-align: center;
+  padding: 0.3rem 0;
+  user-select: none;
+  cursor: default;
+}
+#footer-bar .build-id {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+}

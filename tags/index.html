@@ -40,5 +40,20 @@
       
     </ul>
   </div>
+  <div class="build-id" data-build-id="1784311526" data-build-iso="2026-07-17T13:05:26-05:00">Build ID: 1784311526</div>
+  <script>
+    document.querySelectorAll('.build-id[data-build-id]').forEach(function(el) {
+      var ts = parseInt(el.getAttribute('data-build-id'), 10) * 1000;
+      var d = new Date(ts);
+      var pad = function(n) { return n < 10 ? '0' + n : n; };
+      var offset = -d.getTimezoneOffset();
+      var sign = offset >= 0 ? '+' : '-';
+      var oh = pad(Math.floor(Math.abs(offset) / 60));
+      var om = pad(Math.abs(offset) % 60);
+      el.title = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
+        'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) +
+        sign + oh + ':' + om;
+    });
+  </script>
 </body>
 </html>

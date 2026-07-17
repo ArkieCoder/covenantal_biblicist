@@ -121,6 +121,10 @@ else
   fi
 fi
 
+# Generate a unified build ID (epoch seconds) for all pages
+BUILD_ID="$(date +%s)"
+export BUILD_ID
+
 # Generate index and tag pages
 python3 "$SCRIPT_DIR/generate_index.py"
 python3 "$SCRIPT_DIR/generate_tags.py"

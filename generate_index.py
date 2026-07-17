@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Generate root index.html from article metadata."""
 
+import os
 import re
 import json
 import yaml
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader
 
 SCRIPT_DIR = Path(__file__).parent
@@ -98,11 +99,18 @@ def collect_articles():
 
 def generate_index(articles, tags):
     """Generate root index.html."""
+    build_id = os.environ.get("BUILD_ID", "")
+    build_iso = ""
+    if build_id:
+        build_iso = datetime.fromtimestamp(int(build_id), tz=timezone.utc).astimezone().isoformat()
+
     env = Environment(loader=FileSystemLoader(str(SCRIPT_DIR)))
     template = env.get_template("index-template.html.j2")
     html = template.render(
         articles=json.dumps(articles, default=str),
-        tags=json.dumps(tags, default=str)
+        tags=json.dumps(tags, default=str),
+        build_id=build_id,
+        build_iso=build_iso
     )
     (SCRIPT_DIR / "index.html").write_text(html)
     print(f"Generated index.html ({len(articles)} articles, {len(tags)} tags)")
