@@ -14,7 +14,7 @@
   <div id="adobe-dc-view"></div>
   <div id="footer-bar">
     <div id="footer-title"><a href="../../">Covenantal Biblicist</a></div>
-    <div class="build-id" data-build-id="1784312351" data-build-iso="2026-07-17T18:19:11+00:00">Build ID: 1784312351</div>
+    <div class="build-id" data-build-id="1784312944" data-build-iso="2026-07-17T18:29:04+00:00">Build ID: 1784312944</div>
     <div id="footer-icons">
       <a href="reach_men_reach_families.pdf" onclick="window.open(this.href); return false;" title="Open PDF"><i class="fa-solid fa-print"></i></a>
       <div class="share-email-wrap">
@@ -106,6 +106,21 @@
         'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) +
         sign + oh + ':' + om;
     });
+  </script>
+  <script>
+    (function() {
+      var currentVariant = getPdfVariant();
+      var resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          var newVariant = getPdfVariant();
+          if (newVariant !== currentVariant) {
+            location.reload();
+          }
+        }, 300);
+      });
+    })();
   </script>
 </body>
 </html>
