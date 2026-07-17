@@ -13,6 +13,10 @@ TEMPLATE="article-template.html.j2"
 RENDER="$SCRIPT_DIR/render_template.py"
 CROPCBOX="$SCRIPT_DIR/set-cropbox.py"
 
+# Unified build ID (epoch seconds) for all pages
+BUILD_ID="$(date +%s)"
+export BUILD_ID
+
 build_article() {
   local dir="$1"
   local name="$(basename "$dir")"
@@ -120,10 +124,6 @@ else
     exit 1
   fi
 fi
-
-# Generate a unified build ID (epoch seconds) for all pages
-BUILD_ID="$(date +%s)"
-export BUILD_ID
 
 # Generate index and tag pages
 python3 "$SCRIPT_DIR/generate_index.py"

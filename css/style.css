@@ -425,16 +425,18 @@ strong { font-weight: bold; }
 
 /* === Build ID === */
 .build-id {
-  font-size: 0.6rem;
-  color: #aaa;
+  font-size: 0.55rem;
+  color: #e0e0e0;
   text-align: center;
-  padding: 0.3rem 0;
+  padding: 0.4rem 0;
   user-select: none;
   cursor: default;
+  letter-spacing: 0.02em;
 }
 #footer-bar .build-id {
   position: absolute;
   bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
+  color: rgba(255,255,255,0.15);
 }
