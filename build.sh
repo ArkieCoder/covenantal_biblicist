@@ -70,9 +70,13 @@ assemble_site() {
   mkdir -p "$SITE_DIR/articles"
   mkdir -p "$SITE_DIR/tags"
   mkdir -p "$SITE_DIR/css"
+  mkdir -p "$SITE_DIR/js"
 
   # Copy shared CSS
   cp "$SCRIPT_DIR/css/style.css" "$SITE_DIR/css/"
+
+  # Copy JS
+  cp "$SCRIPT_DIR/js/tagcloud.js" "$SITE_DIR/js/"
 
   # Copy root index
   cp "$SCRIPT_DIR/index.html" "$SITE_DIR/"
