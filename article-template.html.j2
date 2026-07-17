@@ -5,14 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Covenantal Biblicist</title>
   <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
   <div id="header">
     <h1><a href="../../">Covenantal Biblicist</a></h1>
   </div>
   <div id="adobe-dc-view"></div>
-  <a id="download-btn" href="{{ article_name }}.pdf" onclick="window.open(this.href); return false;">Download PDF</a>
-  <div id="footer-title">Covenantal Biblicist</div>
+  <div id="footer-bar">
+    <div id="footer-title"><a href="../../">Covenantal Biblicist</a></div>
+    <div id="footer-icons">
+      <a href="{{ article_name }}.pdf" onclick="window.open(this.href); return false;" title="Open PDF"><i class="fa-solid fa-print"></i></a>
+      <a id="share-email" href="#" title="Email"><i class="fa-solid fa-envelope"></i></a>
+      <a id="share-facebook" href="#" target="_blank" rel="noopener" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a id="share-x" href="#" target="_blank" rel="noopener" title="X"><i class="fa-brands fa-x-twitter"></i></a>
+    </div>
+  </div>
   <div id="page-cover"></div>
 
   <script src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
@@ -39,6 +47,19 @@
         { embedMode: "IN_LINE" }
       );
     });
+
+    var shareTitle = {{ article_title | tojson }};
+    var shareUrl = window.location.href;
+
+    document.getElementById("share-email").href =
+      "mailto:?subject=" + encodeURIComponent(shareTitle) + "&body=" + encodeURIComponent(shareUrl);
+
+    document.getElementById("share-facebook").href =
+      "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl);
+
+    document.getElementById("share-x").href =
+      "https://twitter.com/intent/tweet?text=" + encodeURIComponent(shareTitle) + "&url=" + encodeURIComponent(shareUrl);
+
     var footerTitle = document.getElementById("footer-title");
     var header = document.getElementById("header");
     window.addEventListener("scroll", function () {
