@@ -17,7 +17,6 @@ jobs:
       ADOBE_CLIENT_ID: ${{ secrets.ADOBE_CLIENT_ID }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/configure-pages@v5
       - name: Install Python dependencies
         run: |
           apt-get update && apt-get install -y python3-pip
@@ -30,7 +29,6 @@ jobs:
       - name: Run Pagefind
         run: npx pagefind --site _site/
       - name: Commit built artifacts
-        working-directory: ${{ github.workspace }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -38,6 +36,7 @@ jobs:
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update built artifacts [skip ci]"
           git push
+      - uses: actions/configure-pages@v5
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
