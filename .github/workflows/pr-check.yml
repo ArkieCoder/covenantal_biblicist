@@ -49,22 +49,19 @@ jobs:
     needs: detect-changes
     if: fromJson(needs.detect-changes.outputs.matrix).article | length > 0
     runs-on: ubuntu-latest
+    container:
+      image: texlive/texlive:latest
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
       fail-fast: false
     steps:
       - uses: actions/checkout@v6
-      - uses: xu-cheng/latex-action@v4
-        with:
-          root_file: articles/${{ matrix.article }}/main.tex
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - run: pip install pikepdf jinja2 pyyaml
-      - name: Build article
-        run: ./build.sh ${{ matrix.article }}
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Build article
+        run: ./build.sh ${{ matrix.article }}
       - name: Run Pagefind
         run: npx pagefind --site _site/

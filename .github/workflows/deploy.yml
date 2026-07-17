@@ -11,21 +11,18 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: texlive/texlive:latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/configure-pages@v5
-      - uses: xu-cheng/latex-action@v4
-        with:
-          root_file: articles/reach_men_reach_families/main.tex
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - run: pip install pikepdf jinja2 pyyaml
-      - name: Build all articles
-        run: ./build.sh
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Build all articles
+        run: ./build.sh
       - name: Run Pagefind
         run: npx pagefind --site _site/
       - name: Upload Pages artifact
