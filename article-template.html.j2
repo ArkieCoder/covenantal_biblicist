@@ -107,5 +107,20 @@
         sign + oh + ':' + om;
     });
   </script>
+  <script>
+    (function() {
+      var currentVariant = getPdfVariant();
+      var resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          var newVariant = getPdfVariant();
+          if (newVariant !== currentVariant) {
+            location.reload();
+          }
+        }, 300);
+      });
+    })();
+  </script>
 </body>
 </html>
