@@ -7,6 +7,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ARTICLES_DIR="$SCRIPT_DIR/articles"
+SITE_DIR="$SCRIPT_DIR/_site"
 TEMPLATE_DIR="$SCRIPT_DIR"
 TEMPLATE="article-template.html.j2"
 RENDER="$SCRIPT_DIR/render_template.py"
@@ -61,6 +62,38 @@ build_article() {
   echo "=== Done: $name ==="
 }
 
+assemble_site() {
+  echo "=== Assembling site ==="
+  rm -rf "$SITE_DIR"
+  mkdir -p "$SITE_DIR/articles"
+  mkdir -p "$SITE_DIR/tags"
+  mkdir -p "$SITE_DIR/css"
+
+  # Copy shared CSS
+  cp "$SCRIPT_DIR/css/style.css" "$SITE_DIR/css/"
+
+  # Copy root index
+  cp "$SCRIPT_DIR/index.html" "$SITE_DIR/"
+
+  # Copy article artifacts
+  for dir in "$ARTICLES_DIR"/*/; do
+    local name="$(basename "$dir")"
+    if [ -f "$dir/index.html" ]; then
+      mkdir -p "$SITE_DIR/articles/$name"
+      cp "$dir/index.html" "$SITE_DIR/articles/$name/"
+      cp "$dir"/*.pdf "$SITE_DIR/articles/$name/" 2>/dev/null || true
+    fi
+  done
+
+  # Copy tag pages
+  if [ -d "$SCRIPT_DIR/tags" ]; then
+    cp -r "$SCRIPT_DIR/tags/"* "$SITE_DIR/tags/" 2>/dev/null || true
+  fi
+
+  echo "=== Site assembled ==="
+}
+
+# Build articles
 if [ -n "$1" ]; then
   if [ -f "$ARTICLES_DIR/$1/main.tex" ]; then
     build_article "$ARTICLES_DIR/$1"
@@ -81,3 +114,10 @@ else
     exit 1
   fi
 fi
+
+# Generate index and tag pages
+python3 "$SCRIPT_DIR/generate_index.py"
+python3 "$SCRIPT_DIR/generate_tags.py"
+
+# Assemble site for deployment
+assemble_site
