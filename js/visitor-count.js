@@ -18,8 +18,9 @@
     if (!span) return;
     var r = new XMLHttpRequest();
     r.addEventListener('load', function() {
-      if (r.status === 200) {
-          var count = JSON.parse(r.responseText).count;
+      if (r.status === 200 || r.status === 404) {
+          var data = JSON.parse(r.responseText);
+          var count = data ? data.count : 0;
           span.textContent = count;
           span.title = count + ' views';
         } else {
