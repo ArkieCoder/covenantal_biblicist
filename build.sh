@@ -32,34 +32,34 @@ build_article() {
     export TEXINPUTS="$SCRIPT_DIR:$TEXINPUTS"
 
     # Canonical version (full tufte layout)
-    pdflatex base.tex
+    pdflatex -interaction=nonstopmode base.tex
     biber base
-    pdflatex base.tex
-    pdflatex base.tex
+    pdflatex -interaction=nonstopmode base.tex
+    pdflatex -interaction=nonstopmode base.tex
     rm -vf base.bcf base.out base.aux base.blg base.bbl base.log base.run.xml
     mv base.pdf "$name.pdf"
 
     # Embed version (no headers, newpage at sections, variable page heights via CropBox)
-    pdflatex "\def\embedversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \input base.tex"
     biber base
-    pdflatex "\def\embedversion{} \input base.tex"
-    pdflatex "\def\embedversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \input base.tex"
 
     # Set CropBox per page: tight to content bounds (preserves annotations)
     "$CROPCBOX" base.pdf "$name-embed.pdf"
 
     # Tablet variant (embed layout + larger font)
-    pdflatex "\def\embedversion{} \def\tabletversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \def\tabletversion{} \input base.tex"
     biber base
-    pdflatex "\def\embedversion{} \def\tabletversion{} \input base.tex"
-    pdflatex "\def\embedversion{} \def\tabletversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \def\tabletversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \def\tabletversion{} \input base.tex"
     "$CROPCBOX" base.pdf "$name-embedtablet.pdf"
 
     # Mobile variant (embed layout + largest font)
-    pdflatex "\def\embedversion{} \def\mobileversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \def\mobileversion{} \input base.tex"
     biber base
-    pdflatex "\def\embedversion{} \def\mobileversion{} \input base.tex"
-    pdflatex "\def\embedversion{} \def\mobileversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \def\mobileversion{} \input base.tex"
+    pdflatex -interaction=nonstopmode "\def\embedversion{} \def\mobileversion{} \input base.tex"
     "$CROPCBOX" base.pdf "$name-embedmobile.pdf"
 
     rm -vf base.pdf base.bcf base.out base.aux base.blg base.bbl base.log base.run.xml

@@ -46,13 +46,6 @@
   bottom=0.5in
 }
 
-\ifdefined\embedversion
-  \AtBeginDocument{%
-    \pdfpageheight=16000pt
-    \textheight=15500pt
-  }
-\fi
-
 \ifdefined\mobileversion
   \AtBeginDocument{%
     \renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}%
@@ -77,6 +70,18 @@
     \normalsize
     \justifying
   }
+\fi
+
+\ifdefined\embedversion
+  \makeatletter
+  \AtBeginDocument{%
+    \pdfpageheight=16000pt
+    \textheight=15500pt
+    \vsize=15500pt
+    \global\@colht=\textheight
+    \global\@colroom=\textheight
+  }
+  \makeatother
 \fi
 
 \input{main.tex}
