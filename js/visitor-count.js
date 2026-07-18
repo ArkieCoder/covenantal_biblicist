@@ -18,10 +18,13 @@
     var r = new XMLHttpRequest();
     r.addEventListener('load', function() {
       if (r.status === 200) {
-        span.textContent = JSON.parse(r.responseText).count;
-      } else {
-        span.textContent = '--';
-      }
+          var count = JSON.parse(r.responseText).count;
+          span.textContent = count;
+          span.title = count + ' views';
+        } else {
+          span.textContent = '--';
+          span.title = '';
+        }
     });
     r.open('GET', 'https://covenantbiblicist.goatcounter.com/counter' + path + '.json');
     r.send();
