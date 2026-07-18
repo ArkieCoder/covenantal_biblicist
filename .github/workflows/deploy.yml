@@ -36,6 +36,7 @@ jobs:
           git add articles/*/*.pdf articles/*/*.html index.html tags/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update built artifacts [skip ci]"
+          git pull --rebase origin master
           git push
       - uses: actions/configure-pages@v5
       - name: Upload Pages artifact
