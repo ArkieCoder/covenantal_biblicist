@@ -7,7 +7,8 @@
     var sign = offset >= 0 ? '+' : '-';
     var oh = pad(Math.floor(Math.abs(offset) / 60));
     var om = pad(Math.abs(offset) % 60);
-    el.title = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
+    var target = el.querySelector('.build-id-text') || el;
+    target.title = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
       'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) +
       sign + oh + ':' + om;
   });
