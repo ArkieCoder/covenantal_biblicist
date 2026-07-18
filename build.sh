@@ -81,6 +81,7 @@ assemble_site() {
 
   # Copy JS
   cp "$SCRIPT_DIR/js/tagcloud.js" "$SITE_DIR/js/"
+  cp "$SCRIPT_DIR/js/visitor-count.js" "$SITE_DIR/js/"
 
   # Copy root index
   cp "$SCRIPT_DIR/index.html" "$SITE_DIR/"
