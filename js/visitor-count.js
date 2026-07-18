@@ -21,10 +21,10 @@
       if (r.status === 200 || r.status === 404) {
           var data = JSON.parse(r.responseText);
           var count = data ? data.count : 0;
-          span.textContent = count;
+          span.textContent = 'Views: ' + count;
           span.title = count + ' views';
         } else {
-          span.textContent = '--';
+          span.textContent = 'Views: --';
           span.title = '';
         }
     });
