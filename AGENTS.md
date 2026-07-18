@@ -46,10 +46,10 @@
 ```
 
 Per article, `build.sh` produces 4 PDF variants:
-1. **Desktop** (`{name}.pdf`): `pdflatex main.tex` — canonical tufte layout
-2. **Embed** (`{name}-embed.pdf`): `\def\embedversion{}` — no headers, `\newpage` before sections, CropBox applied
-3. **Tablet** (`{name}-tablet.pdf`): `\def\tabletversion{}` — medium margins, 10pt font, CropBox applied
-4. **Mobile** (`{name}-mobile.pdf`): `\def\mobileversion{}` — narrow margins, 11pt font, CropBox applied
+1. **Desktop** (`{name}.pdf`): `pdflatex base.tex` — canonical tufte layout
+2. **Embed** (`{name}-embed.pdf`): `\def\embedversion{}` — no headers, `\newpage` before sections, CropBox+MediaBox applied
+3. **Embed Tablet** (`{name}-embedtablet.pdf`): `\def\embedversion{} \def\tabletversion{}` — embed layout + 12pt font, CropBox+MediaBox applied
+4. **Embed Mobile** (`{name}-embedmobile.pdf`): `\def\embedversion{} \def\mobileversion{}` — embed layout + 14pt font, CropBox+MediaBox applied
 
 Each variant gets its own pdflatex triple-pass + biber cycle.
 
@@ -61,29 +61,37 @@ After article builds, `build.sh` runs:
 ### Embed Version
 The embed build compiles with `\def\embedversion{}`:
 - `\pagestyle{empty}` suppresses headers/footers
+- `\pdfpageheight=16000pt` and `\textheight=15500pt` create tall pages so TeX never breaks mid-section
 - `\newpage` before each `\section` starts content on a fresh page
-- `set-cropbox.py` uses Ghostscript bbox detection + pikepdf to set per-page CropBox
+- `set-cropbox.py` uses Ghostscript bbox detection + pikepdf to set per-page CropBox and MediaBox
 
 ### CropBox Logic (`set-cropbox.py`)
 - `pad = 2` (tight to content bounds)
 - `MIN_HEIGHT = 200` — pages with content < 200pt get expanded CropBox anchored at content top
 - This prevents the Adobe PDF viewer from clipping sparse pages (e.g., last page with short section)
 - Pages with content ≥ 200pt get tight cropping
+- **MediaBox is resized to match CropBox** — eliminates whitespace gaps in the Adobe PDF Embed viewer
 
 ### Responsive LaTeX Geometry
-Conditional geometry blocks in each `main.tex` (after base `\geometry{}`, before `\title{}`):
+Conditional font-size redefinitions in `base.tex` (after base `\geometry{}`, before `\input{main.tex}`):
 ```latex
 \ifdefined\mobileversion
-  \geometry{left=0.25in, textwidth=28pc, marginparsep=0.5pc, marginparwidth=6pc, bottom=0.35in}
-  \fontsize{11pt}{14pt}\selectfont
+  \AtBeginDocument{%
+    \renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}%
+    \normalsize
+    \justifying
+  }
 \fi
 
 \ifdefined\tabletversion
-  \geometry{left=0.35in, textwidth=30pc, marginparsep=0.75pc, marginparwidth=6pc, bottom=0.4in}
-  \fontsize{10pt}{12.5pt}\selectfont
+  \AtBeginDocument{%
+    \renewcommand{\normalsize}{\fontsize{12pt}{15pt}\selectfont}%
+    \normalsize
+    \justifying
+  }
 \fi
 ```
-**Critical**: `marginparwidth` must be ≥6pc for mobile/tablet to avoid `marginfix` package errors with tufte-handout footnotes.
+Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\geometry{}`). `marginfix` is conditionally skipped for mobile/tablet builds.
 
 ### Dependencies
 - TeX distribution (TeX Live/MacTeX): `pdflatex`, `biber`, `tufte-handout`, all packages
@@ -115,8 +123,8 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 - Loads Font Awesome 6.5.1 from CDN
 - Header: "Covenantal Biblicist" linking to `../../` (root index)
 - Adobe PDF Embed API with responsive variant selection:
-  - `<600px` → mobile variant
-  - `600-1023px` → tablet variant
+  - `<600px` → embedmobile variant
+  - `600-1023px` → embedtablet variant
   - `≥1023px` → embed variant
 - Footer bar (`#footer-bar`): 100px fixed bar with gradient
   - Left: "Covenantal Biblicist" title (links to index, appears on scroll)
@@ -173,7 +181,7 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 3. Custom field formats (QR codes)
 4. Custom commands
 5. Base geometry override
-6. Conditional mobile/tablet geometry blocks
+6. Conditional mobile/tablet font-size blocks
 7. Title metadata
 
 ## Custom Commands

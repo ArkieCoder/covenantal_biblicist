@@ -46,6 +46,13 @@
   bottom=0.5in
 }
 
+\ifdefined\embedversion
+  \AtBeginDocument{%
+    \pdfpageheight=16000pt
+    \textheight=15500pt
+  }
+\fi
+
 \ifdefined\mobileversion
   \AtBeginDocument{%
     \renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}%

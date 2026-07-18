@@ -53,14 +53,14 @@ build_article() {
     biber base
     pdflatex "\def\embedversion{} \def\tabletversion{} \input base.tex"
     pdflatex "\def\embedversion{} \def\tabletversion{} \input base.tex"
-    "$CROPCBOX" base.pdf "$name-tablet.pdf"
+    "$CROPCBOX" base.pdf "$name-embedtablet.pdf"
 
     # Mobile variant (embed layout + largest font)
     pdflatex "\def\embedversion{} \def\mobileversion{} \input base.tex"
     biber base
     pdflatex "\def\embedversion{} \def\mobileversion{} \input base.tex"
     pdflatex "\def\embedversion{} \def\mobileversion{} \input base.tex"
-    "$CROPCBOX" base.pdf "$name-mobile.pdf"
+    "$CROPCBOX" base.pdf "$name-embedmobile.pdf"
 
     rm -vf base.pdf base.bcf base.out base.aux base.blg base.bbl base.log base.run.xml
   )

@@ -35,8 +35,8 @@
   <script type="text/javascript">
     document.addEventListener("adobe_dc_view_sdk.ready", function () {
       function getPdfVariant() {
-        if (window.matchMedia("(max-width: 599px)").matches) return "mobile";
-        if (window.matchMedia("(max-width: 1023px)").matches) return "tablet";
+        if (window.matchMedia("(max-width: 599px)").matches) return "embedmobile";
+        if (window.matchMedia("(max-width: 1023px)").matches) return "embedtablet";
         return "embed";
       }
 
