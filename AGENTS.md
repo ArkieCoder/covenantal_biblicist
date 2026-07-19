@@ -91,7 +91,7 @@ Conditional font-size redefinitions in `base.tex` (after base `\geometry{}`, bef
   }
 \fi
 ```
-Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\geometry{}`). `marginfix` is conditionally skipped for mobile/tablet builds.
+Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\geometry{}`). `marginfix` is loaded unconditionally for all variants (prevents margin note collisions).
 
 ### Dependencies
 - TeX distribution (TeX Live/MacTeX): `pdflatex`, `biber`, `tufte-handout`, all packages
