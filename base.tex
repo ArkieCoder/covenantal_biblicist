@@ -43,6 +43,7 @@
 }
 
 \ifdefined\mobileversion
+  \makeatletter
   \AtBeginDocument{%
     \renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}%
     \renewcommand{\small}{\fontsize{12pt}{15pt}\selectfont}%
@@ -50,12 +51,18 @@
     \renewcommand{\scriptsize}{\fontsize{9pt}{12pt}\selectfont}%
     \renewcommand{\large}{\fontsize{16pt}{20pt}\selectfont}%
     \renewcommand{\Large}{\fontsize{18pt}{22pt}\selectfont}%
+    \renewcommand{\LARGE}{\fontsize{20pt}{24pt}\selectfont}%
+    \renewcommand{\tiny}{\fontsize{7pt}{9pt}\selectfont}%
+    \renewcommand{\@tufte@marginfont}{\normalfont\scriptsize}%
+    \setlength{\marginparpush}{14pt}%
     \normalsize
     \justifying
   }
+  \makeatother
 \fi
 
 \ifdefined\tabletversion
+  \makeatletter
   \AtBeginDocument{%
     \renewcommand{\normalsize}{\fontsize{12pt}{15pt}\selectfont}%
     \renewcommand{\small}{\fontsize{11pt}{14pt}\selectfont}%
@@ -63,9 +70,14 @@
     \renewcommand{\scriptsize}{\fontsize{8pt}{11pt}\selectfont}%
     \renewcommand{\large}{\fontsize{14pt}{18pt}\selectfont}%
     \renewcommand{\Large}{\fontsize{16pt}{20pt}\selectfont}%
+    \renewcommand{\LARGE}{\fontsize{18pt}{22pt}\selectfont}%
+    \renewcommand{\tiny}{\fontsize{6pt}{8pt}\selectfont}%
+    \renewcommand{\@tufte@marginfont}{\normalfont\scriptsize}%
+    \setlength{\marginparpush}{12pt}%
     \normalsize
     \justifying
   }
+  \makeatother
 \fi
 
 \ifdefined\embedversion

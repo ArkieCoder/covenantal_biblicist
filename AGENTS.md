@@ -13,6 +13,7 @@
 
 ```
 ├── build.sh                          # Main build script
+├── base.tex                          # Shared LaTeX preamble (loaded by all articles)
 ├── set-cropbox.py                    # PDF CropBox setter (Ghostscript + pikepdf)
 ├── render_template.py                # Jinja2 article template renderer
 ├── generate_index.py                 # Root index.html generator
@@ -22,14 +23,17 @@
 ├── tag-index-template.html.j2        # Tag listing page template
 ├── tag-page-template.html.j2         # Per-tag article listing template
 ├── css/style.css                     # Shared stylesheet
+├── js/tagcloud.js                    # Spiral placement tag cloud algorithm
+├── js/visitor-count.js               # GoatCounter view count + build ID display
 ├── articles/
 │   └── {article_name}/
-│       ├── main.tex                  # LaTeX source
+│       ├── base.tex                  # Symlink/copy? No — articles use ROOT base.tex via TEXINPUTS
+│       ├── main.tex                  # LaTeX source (article-specific content only)
 │       ├── metadata.yaml             # Article metadata
 │       ├── references.bib            # Bibliography
 │       └── index.html                # Generated article viewer page
 ├── _site/                            # Assembled site for deployment (gitignored)
-├── tags/                             # Generated tag pages (gitignored)
+├── tags/                             # Generated tag pages (committed by CI)
 ├── .github/workflows/
 │   ├── deploy.yml                    # Deploy to GitHub Pages on push to master
 │   └── pr-check.yml                  # Matrix build on PRs
@@ -45,6 +49,8 @@
 ./build.sh {article_name}     # Build single article
 ```
 
+**Important**: `build.sh` must be invoked as `./build.sh`, not `bash build.sh`. Python scripts are invoked directly (shebang + chmod +x).
+
 Per article, `build.sh` produces 4 PDF variants:
 1. **Desktop** (`{name}.pdf`): `pdflatex base.tex` — canonical tufte layout
 2. **Embed** (`{name}-embed.pdf`): `\def\embedversion{}` — no headers, `\newpage` before sections, CropBox+MediaBox applied
@@ -58,6 +64,14 @@ After article builds, `build.sh` runs:
 - `generate_tags.py` → `tags/index.html` + `tags/{tag}/index.html`
 - `assemble_site()` → copies everything into `_site/`
 
+### Build Script Internals
+- `SCRIPT_DIR` is resolved via `$(cd "$(dirname "$0")" && pwd)`
+- `TEXINPUTS="$SCRIPT_DIR:$TEXINPUTS"` — pdflatex finds `base.tex` from the project root (non-recursive)
+- All `pdflatex` calls use `-interaction=nonstopmode` — prevents hanging on interactive `?` prompts
+- `biber base` is used for all variants (not `biber {name}`) — biber reads from `base.bcf`
+- `BUILD_ID` is generated once at the top of `build.sh` via `date +%s` (epoch seconds) and exported for all Python scripts
+- Intermediate files (`base.bcf`, `base.out`, `base.aux`, `base.blg`, `base.bbl`, `base.log`, `base.run.xml`) are cleaned after each variant's triple-pass completes
+
 ### Embed Version
 The embed build compiles with `\def\embedversion{}`:
 - `\pagestyle{empty}` suppresses headers/footers
@@ -65,8 +79,30 @@ The embed build compiles with `\def\embedversion{}`:
 - `\newpage` before each `\section` starts content on a fresh page
 - `set-cropbox.py` uses Ghostscript bbox detection + pikepdf to set per-page CropBox and MediaBox
 
+### Embed LaTeX Internals (`base.tex`)
+The embed version uses `\AtBeginDocument` hooks to override TeX's page dimensions:
+
+```latex
+\ifdefined\embedversion
+  \makeatletter
+  \AtBeginDocument{%
+    \pdfpageheight=16000pt
+    \textheight=15500pt
+    \vsize=15500pt
+    \global\@colht=\textheight
+    \global\@colroom=\textheight
+  }
+  \makeatother
+\fi
+```
+
+**Why `\makeatletter`/`\makeatother` is required**: By the time `\AtBeginDocument` tokens are tokenized, earlier packages have executed `\makeatother`, so `@` has catcode 12 (other). Without the wrapper, `\@colht` is tokenized as `\@` (spacefactor command) + `colht` (literal text), producing visible "colht" artifacts in the PDF output. This is the same issue that caused the "opcolopcol" artifact.
+
+**Why `\@colht`/`\@colroom` must be set**: The LaTeX kernel's `\document` macro sets `\@colht`/`\@colroom`/`\vsize` from `\textheight` at line 9637 of `latex.ltx`, *before* `\AtBeginDocument` hooks fire. Without these overrides, `\textheight` would be 15500pt but `\@colht`/`\@colroom` would remain at ~686pt, causing the output routine's `\global \vsize \@colroom` to revert `\vsize` on every page break. TeX's max dimension is 16384pt, so `\pdfpageheight=16000pt` is the practical ceiling.
+
 ### CropBox Logic (`set-cropbox.py`)
 - `pad = 2` (tight to content bounds)
+- `TOP_PAD = 15` — adds 15pt of padding above content on each page
 - `MIN_HEIGHT = 200` — pages with content < 200pt get expanded CropBox anchored at content top
 - This prevents the Adobe PDF viewer from clipping sparse pages (e.g., last page with short section)
 - Pages with content ≥ 200pt get tight cropping
@@ -78,6 +114,11 @@ Conditional font-size redefinitions in `base.tex` (after base `\geometry{}`, bef
 \ifdefined\mobileversion
   \AtBeginDocument{%
     \renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}%
+    \renewcommand{\small}{\fontsize{12pt}{15pt}\selectfont}%
+    \renewcommand{\footnotesize}{\fontsize{11pt}{14pt}\selectfont}%
+    \renewcommand{\scriptsize}{\fontsize{9pt}{12pt}\selectfont}%
+    \renewcommand{\large}{\fontsize{16pt}{20pt}\selectfont}%
+    \renewcommand{\Large}{\fontsize{18pt}{22pt}\selectfont}%
     \normalsize
     \justifying
   }
@@ -86,6 +127,11 @@ Conditional font-size redefinitions in `base.tex` (after base `\geometry{}`, bef
 \ifdefined\tabletversion
   \AtBeginDocument{%
     \renewcommand{\normalsize}{\fontsize{12pt}{15pt}\selectfont}%
+    \renewcommand{\small}{\fontsize{11pt}{14pt}\selectfont}%
+    \renewcommand{\footnotesize}{\fontsize{10pt}{13pt}\selectfont}%
+    \renewcommand{\scriptsize}{\fontsize{8pt}{11pt}\selectfont}%
+    \renewcommand{\large}{\fontsize{14pt}{18pt}\selectfont}%
+    \renewcommand{\Large}{\fontsize{16pt}{20pt}\selectfont}%
     \normalsize
     \justifying
   }
@@ -117,6 +163,9 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 - `article_name` — directory name (e.g., `reach_men_reach_families`)
 - `article_title` — from metadata (e.g., "Reach Men, Reach Families")
 - `article_description` — from metadata
+- `adobe_client_id` — from `ADOBE_CLIENT_ID` env var, fallback `bd4cb7ccbcdc4940adb98b75683d410a`
+- `build_id` — from `BUILD_ID` env var (epoch seconds)
+- `build_iso` — human-readable ISO timestamp derived from `build_id`
 
 ### Article Template (`article-template.html.j2`)
 - Loads shared CSS from `../../css/style.css`
@@ -131,6 +180,8 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
   - Right: Icon row — Print (opens PDF), Email (dropdown: mailto + Gmail), Facebook, X
 - Share URLs use browser-native: `mailto:`, Gmail compose URL, Facebook share, X intent
 - Email icon has dropdown with "Mail client" (native) and "Gmail" options
+- GoatCounter analytics script tag in `<head>` (`covenantbiblicist.goatcounter.com`)
+- Build ID and Views counters in footer with hover tooltips
 
 ### Index Template (`index-template.html.j2`)
 - Search input + sort dropdown (date, title, author)
@@ -138,6 +189,7 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 - Abstracts rendered as multi-paragraph HTML with justified text
 - "Read ☞" button in flexbox footer aligned with last paragraph
 - Client-side filtering and sorting via JavaScript
+- GoatCounter analytics script tag in `<head>`
 
 ### Tag Templates
 - `tag-index-template.html.j2` — lists all tags with article counts
@@ -175,14 +227,15 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 - Standard `abstract` environment immediately after `\maketitle`
 - Multi-paragraph abstracts are supported and used
 
-### Preamble Organization
+### Preamble Organization (`base.tex`)
 1. `\documentclass[justified, nobib]{tufte-handout}`
 2. Package loading block
 3. Custom field formats (QR codes)
 4. Custom commands
 5. Base geometry override
 6. Conditional mobile/tablet font-size blocks
-7. Title metadata
+7. Conditional embed page-dimension overrides
+8. `\input{main.tex}` (article-specific content starts here)
 
 ## Custom Commands
 
@@ -203,7 +256,7 @@ Block scripture quotations with attribution
 | `verse` | - | Poetry/verse typesetting |
 | `gmverse` | - | Extended verse formatting |
 | `alltt` | - | Verbatim-like environments |
-| `marginfix` | - | Margin note spacing fixes |
+| `marginfix` | - | Margin note spacing fixes (unconditional) |
 | `biblatex` | `[style=verbose]` | Bibliography management |
 | `qrcode` | - | QR code generation |
 | `fontsize` | `[fontsize=9pt]` | Base font size override |
@@ -216,6 +269,8 @@ Block scripture quotations with attribution
 - **Resource File**: `references.bib`
 - URLs render as QR codes via custom `\DeclareFieldFormat{url}`
 
+**Known warning**: `Package biblatex Warning: Patching footnotes failed.` — This is expected and harmless. `tufte-handout` renders footnotes via `\marginpar` rather than the standard `\@footnotetext`, so `biblatex`'s footnote detection patch cannot hook in. Citations still render correctly in the margin.
+
 ## Typography Conventions
 
 - **Base size**: 9pt (via `fontsize` package)
@@ -226,15 +281,23 @@ Block scripture quotations with attribution
 
 ## CI/CD (`.github/workflows/`)
 
+### `deploy.yml`
+- Triggers on push to `master`
+- Runs in `texlive/texlive:latest` Docker container (has pdflatex, biber, Ghostscript, Python)
+- `ADOBE_CLIENT_ID` injected from GitHub secret
+- Python deps installed via `pip3 install --break-system-packages -r requirements.txt`
+- Builds all articles, runs Pagefind for search indexing
+- Commits built artifacts (PDFs, HTML, tags/) back to repo with `[skip ci]`
+- Uses `git pull --rebase origin master` before push to handle concurrent changes
+- `git config --global --add safe.directory` required (Docker checkout owned by root, CI runs as UID 1001)
+- `actions/configure-pages@v5` runs AFTER the commit step (running it before breaks git credential helpers)
+- Deploys to GitHub Pages via `actions/upload-pages-artifact` from `_site/`
+
 ### `pr-check.yml`
-- Triggers on PRs to `master`
+- Triggers on PRs to `master` with `types: [opened, synchronize, reopened]` (without explicit types, GitHub also triggers on push events associated with merged PRs, causing spurious 0s-duration failures)
 - Uses `dorny/paths-filter` to detect changed articles
 - Matrix builds only changed articles (or all if shared files changed)
 - Runs Pagefind for search indexing
-
-### `deploy.yml`
-- Triggers on push to `master`
-- Builds all articles, assembles site, deploys to GitHub Pages
 
 ## Content Patterns
 
@@ -244,11 +307,29 @@ Block scripture quotations with attribution
 ### Theological Vocabulary
 - "covenant order", "sphere sovereignty", "complementarianism", "shepherd" (as verb)
 
+## Troubleshooting
+
+### Biber produces empty `.bbl` files (no references in PDF)
+Biber uses a PAR-packed Perl runtime that caches modules in `/var/folders/.../par-{pid}/cache-*`. This cache can become corrupted, silently causing biber to abort after finding citekeys but before writing entries. Symptoms: biber runs without errors, but `.bbl` is 0 bytes. In `--debug` mode, you'll see `Unicode::UCD: failed to find unicore/version`.
+
+**Fix**: Delete the PAR cache directory:
+```bash
+rm -rf /var/folders/*/T/par-*/cache-*
+```
+Then re-run the build. Biber will regenerate the cache on next invocation.
+
+### "opcolopcol" or "colht" artifacts in PDF output
+These appear when `\makeatletter`/`\makeatother` is not wrapping `\AtBeginDocument` hooks that use `@` in LaTeX internal commands (e.g., `\@colht`, `\@opcol`). Without the wrapper, `@` has catcode 12 (other) when the tokens are created, causing commands like `\@colht` to be split into `\@` (spacefactor) + literal `colht`.
+
+### `\vsize` reverts to small value in embed builds
+If embed pages break mid-section, check that `\global\@colht=\textheight` and `\global\@colroom=\textheight` are set in the `\AtBeginDocument` hook. The LaTeX kernel sets these from `\textheight` before hooks fire, and the output routine uses `\@colroom` to reset `\vsize` on every page break.
+
 ## Notes for Editing
 
 - Documents are **drafts** — "The Problem" and "The Solution" sections may be skeletal
 - `\biblever` and `\scripture` commands are defined but may not yet be used
 - `verse`, `gmverse`, and `alltt` packages are loaded but may be unused
 - QR code feature is set up but may be unused (no URLs in bibliography yet)
-- `_site/` and `tags/` are gitignored — generated output
+- `_site/` is gitignored — generated output
+- `tags/` is committed by CI (removed from `.gitignore`)
 - `TASKS.md` is untracked — implementation task tracking
