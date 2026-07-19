@@ -440,3 +440,11 @@ strong { font-weight: bold; }
   transform: translateX(-50%);
   color: rgba(255,255,255,0.15);
 }
+
+/* === Responsive Footer Icons === */
+@media (max-width: 1023px) {
+  #footer-icons {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}
