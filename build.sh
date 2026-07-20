@@ -86,8 +86,8 @@ assemble_site() {
   # Copy root index
   cp "$SCRIPT_DIR/index.html" "$SITE_DIR/"
 
-  # Copy about page
-  cp "$SCRIPT_DIR/about.html" "$SITE_DIR/" 2>/dev/null || true
+  # Render and copy about page
+  "$RENDER" "$SCRIPT_DIR" "about.html.j2" "" > "$SITE_DIR/about.html"
 
   # Copy article artifacts
   for dir in "$ARTICLES_DIR"/*/; do
