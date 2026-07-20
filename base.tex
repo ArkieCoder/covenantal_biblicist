@@ -6,6 +6,13 @@
 \usepackage[style=verbose]{biblatex}
 \usepackage{qrcode}
 \usepackage[fontsize=9pt]{fontsize}
+\usepackage[T1]{fontenc}
+\makeatletter
+\input{lgrenc.def}
+\makeatother
+\usepackage[english]{babel}
+\usepackage{culmus}
+\AtBeginDocument{\fontencoding{T1}\selectfont}
 \linespread{1.25}
 
 %% QR codes instead of URLs in citations
@@ -22,6 +29,9 @@
 
 %% Custom commands
 \newcommand{\biblever}[1]{(\textsc{\MakeLowercase{#1}})}
+
+\newcommand{\grk}[1]{{\fontencoding{LGR}\selectfont #1\fontencoding{T1}\selectfont}}
+\newcommand{\heb}[1]{{\fontencoding{HE8}\fontfamily{david}\selectfont #1}}
 
 \newcommand{\scriptref}[1]{%
   \\ \hspace*{\fill} --#1%
