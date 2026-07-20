@@ -443,19 +443,9 @@ strong { font-weight: bold; }
 
 /* === Responsive Footer Icons === */
 @media (max-width: 1023px) {
-  #footer-bar {
-    height: auto;
-    min-height: 100px;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem 1.5rem;
-  }
-  #footer-icons {
-    flex-direction: column;
-    gap: 0.3rem;
-  }
   #adobe-dc-view {
     height: auto;
     min-height: calc(100vh - 100px);
+    padding-bottom: 300px;
   }
 }
