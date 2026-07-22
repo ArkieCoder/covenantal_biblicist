@@ -98,6 +98,66 @@
     \vsize=15500pt
     \global\@colht=\textheight
     \global\@colroom=\textheight
+    %
+    % With \textheight=15500pt the page never fills, so every margin note
+    % penalty (-10002/-10003/-10004) enters \@specialoutput, which puts
+    % the content back without shipping a page.  TeX then fires the output
+    % routine again (dead cycle) until \newpage triggers the ELSE branch.
+    % After 100 dead cycles TeX aborts.  Fix: reset \deadcycles after each
+    % \@specialoutput invocation so the counter never accumulates.
+    %
+    % The original \@specialoutput is copied verbatim from latex.ltx
+    % (lines 20826-20872) with only the \deadcycles \z@ line added at
+    % the end.
+    %
+    \gdef\@specialoutput{%
+       \ifnum \outputpenalty>-\@Mii
+         \@doclearpage
+       \else
+         \ifnum \outputpenalty<-\@Miii
+           \ifnum \outputpenalty<-\@MM \deadcycles \z@ \fi
+           \global \setbox\@holdpg \vbox {\unvbox\@cclv}%
+         \else
+           \global \setbox\@holdpg \vbox{%
+                          \unvbox\@holdpg
+                          \unvbox\@cclv
+                          \setbox\@tempboxa \lastbox
+                          \unskip
+                                         }%
+           \@pagedp \dp\@holdpg
+           \@pageht \ht\@holdpg
+           \unvbox \@holdpg
+           \@next\@currbox\@currlist{%
+             \ifnum \count\@currbox>\z@
+               \advance \@pageht \@pagedp
+               \ifvoid\footins \else
+                 \advance \@pageht \ht\footins
+                 \advance \@pageht \skip\footins
+                 \advance \@pageht \dp\footins
+               \fi
+               \ifvbox \@kludgeins
+                 \ifdim \wd\@kludgeins=\z@
+                   \advance \@pageht \ht\@kludgeins
+                 \fi
+               \fi
+               \@reinserts
+               \@addtocurcol
+             \else
+               \@reinserts
+               \@addmarginpar
+             \fi
+             }\@latexbug
+           \ifnum \outputpenalty<\z@
+             \if@nobreak
+               \nobreak
+             \else
+               \addpenalty \interlinepenalty
+             \fi
+           \fi
+         \fi
+       \fi
+       \deadcycles \z@
+    }
   }
   \makeatother
 \fi
