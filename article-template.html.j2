@@ -86,6 +86,18 @@
 
     var footerTitle = document.getElementById("footer-title");
     var header = document.getElementById("header");
+    var footerBar = document.getElementById("footer-bar");
+
+    function checkTitleWrap() {
+      var link = footerTitle.querySelector("a:first-child");
+      var style = window.getComputedStyle(link);
+      var lineH = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2;
+      var singleLine = lineH * 1.4;
+      footerBar.classList.toggle("title-wrapped", link.offsetHeight > singleLine);
+    }
+    checkTitleWrap();
+    window.addEventListener("resize", checkTitleWrap);
+
     window.addEventListener("scroll", function () {
       var headerBottom = header.getBoundingClientRect().bottom;
       if (headerBottom < 0) {

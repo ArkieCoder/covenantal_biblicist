@@ -487,6 +487,14 @@ strong { font-weight: bold; }
   transform: translateX(-50%);
   color: rgba(255,255,255,0.15);
 }
+#footer-bar.title-wrapped #footer-title {
+  align-items: flex-start;
+}
+#footer-bar.title-wrapped .build-id {
+  left: auto;
+  right: 1.5rem;
+  transform: none;
+}
 
 /* === Responsive Footer Icons === */
 @media (max-width: 1023px) {
