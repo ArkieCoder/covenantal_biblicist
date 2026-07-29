@@ -16,7 +16,7 @@
   <div id="adobe-dc-view"></div>
   <div id="footer-bar">
     <div id="footer-title"><a href="../../">Covenantal Biblicist</a> <a href="../../about.html" class="footer-about-link">About</a></div>
-    <div class="build-id" data-build-id="1784735612" data-build-iso="2026-07-22T15:53:32+00:00" data-gc-path="/articles/voting_in_elder_led_churches/"><span class="build-id-text">Build ID: 1784735612</span> &middot; <span class="views">Views: --</span></div>
+    <div class="build-id" data-build-id="1785352110" data-build-iso="2026-07-29T19:08:30+00:00" data-gc-path="/articles/voting_in_elder_led_churches/"><span class="build-id-text">Build ID: 1785352110</span> &middot; <span class="views">Views: --</span></div>
     <div id="footer-icons">
       <a href="voting_in_elder_led_churches.pdf" onclick="window.open(this.href); return false;" title="Open PDF"><i class="fa-solid fa-print"></i></a>
       <div class="share-email-wrap">
@@ -86,6 +86,18 @@
 
     var footerTitle = document.getElementById("footer-title");
     var header = document.getElementById("header");
+    var footerBar = document.getElementById("footer-bar");
+
+    function checkTitleWrap() {
+      var link = footerTitle.querySelector("a:first-child");
+      var style = window.getComputedStyle(link);
+      var lineH = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2;
+      var singleLine = lineH * 1.4;
+      footerBar.classList.toggle("title-wrapped", link.offsetHeight > singleLine);
+    }
+    checkTitleWrap();
+    window.addEventListener("resize", checkTitleWrap);
+
     window.addEventListener("scroll", function () {
       var headerBottom = header.getBoundingClientRect().bottom;
       if (headerBottom < 0) {
