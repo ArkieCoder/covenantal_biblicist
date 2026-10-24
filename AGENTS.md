@@ -71,6 +71,7 @@ After article builds, `build.sh` runs:
 - `biber base` is used for all variants (not `biber {name}`) — biber reads from `base.bcf`
 - `BUILD_ID` is generated once at the top of `build.sh` via `date +%s` (epoch seconds) and exported for all Python scripts
 - Intermediate files (`base.bcf`, `base.out`, `base.aux`, `base.blg`, `base.bbl`, `base.log`, `base.run.xml`) are cleaned after each variant's triple-pass completes
+- The script does **not** check biber's exit code, and the cleanup deletes `base.blg` — a biber failure therefore produces PDFs with bold undefined-citation keys and no visible error (see Troubleshooting)
 
 ### Embed Version
 The embed build compiles with `\def\embedversion{}`:
@@ -245,7 +246,7 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 Format Bible verse references in small caps: `\biblever{gen. 1:1}` → `(GEN. 1:1)`
 
 ### `\scriptref{#1}`
-Right-aligned scriptural attribution (called by `\scripture`)
+Right-aligned scriptural attribution (called by `\scripture`, or directly inside footnote text for full-quote Scripture footnotes)
 
 ### `\scripture{text}{reference}`
 Block scripture quotations with attribution
@@ -269,6 +270,7 @@ Block scripture quotations with attribution
 - **Style**: `biblatex` with `style=verbose`
 - **Citation Command**: `\footcite{key}`
 - **Resource File**: `references.bib`
+- **Scripture citations**: full quotations live in footnotes as the NASB verse text followed by `\scriptref{Ref \biblever{nasb}}`; bare verse references are `\footnote{Ref \biblever{nasb}}`; the label is uniformly `(NASB)` (1995 text)
 - URLs render as QR codes via custom `\DeclareFieldFormat{url}`
 
 **Known warning**: `Package biblatex Warning: Patching footnotes failed.` — This is expected and harmless. `tufte-handout` renders footnotes via `\marginpar` rather than the standard `\@footnotetext`, so `biblatex`'s footnote detection patch cannot hook in. Citations still render correctly in the margin.
@@ -311,14 +313,32 @@ Block scripture quotations with attribution
 
 ## Troubleshooting
 
-### Biber produces empty `.bbl` files (no references in PDF)
-Biber uses a PAR-packed Perl runtime that caches modules in `/var/folders/.../par-{pid}/cache-*`. This cache can become corrupted, silently causing biber to abort after finding citekeys but before writing entries. Symptoms: biber runs without errors, but `.bbl` is 0 bytes. In `--debug` mode, you'll see `Unicode::UCD: failed to find unicore/version`.
+### Biber aborts mid-run (citations render as bold citekeys)
+**Symptom**: Every citation in the PDF renders as its raw bold citekey (e.g., **sowellblack**). This is what biblatex does whenever an entry is missing from the `.bbl` — the `.bbl` is empty, absent, or unreadable. If it affects *every* article in a build — including articles with valid citekeys and unmodified sources — the cause is biber itself, not the LaTeX or any `.bib` file. (CI building the same sources hydrated in Docker confirms the problem is local.)
 
-**Fix**: Delete the PAR cache directory:
+**Root cause**: Biber is a PAR-packed Perl application that extracts its modules to a cache directory. macOS periodically prunes `/var/folders` temp directories by mtime, deleting extracted modules; PAR then partially re-extracts, leaving a mixed cache that dies the first time biber requires an eaten module. Observed signature (2026-10): **exit code 25, no error message anywhere**, and a `.blg` that stops dead after `Found BibTeX data source '<file>'` — no `ERROR` line, no `Processing entry`, no `Writing 'base.bbl'`, no `EXIT`. Biber dies in the entry-mapping/decode phase. PAR ships a `_CANARY_.txt` file in the cache precisely to detect this macOS cleanup. An earlier variant of the same failure produced a 0-byte `.bbl` with `Unicode::UCD: failed to find unicore/version` in `--debug` mode.
+
+**Fix**: Delete the whole PAR directory so biber performs one complete fresh extraction:
 ```bash
-rm -rf /var/folders/*/T/par-*/cache-*
+rm -rf "$(biber --cache)"        # prints the exact cache path
+rm -rf /var/folders/*/*/T/par-*  # or the whole per-user PAR dir
 ```
-Then re-run the build. Biber will regenerate the cache on next invocation.
+The real path has **two directory levels before `/T/`** (`/var/folders/<x>/<random>/T/par-<uid>/cache-<hash>`); the old single-level glob `/var/folders/*/T/par-*` matches nothing and silently fails. Re-run the build; biber regenerates the cache on next invocation. If it still exits 25 after a full purge, reinstall the binary: `tlmgr install --reinstall biber`.
+
+**Diagnostics**:
+- A nonexistent citekey does *not* break biber or the cache — biber logs `Citekey 'x' not found ... - skipping`, writes the `.bbl` without it, and the citation renders bold because it is genuinely undefined. Fix the typo and rebuild; no cache purge needed.
+- On TeX Live 2026, `tlmgr status` was removed; use `tlmgr info <pkg>` for package details.
+- `build.sh` ignores biber's exit code and deletes `base.blg` in its cleanup, so biber failures leave no trace. To see the error, run the pipeline by hand:
+  ```bash
+  cd articles/<name>
+  TEXINPUTS="$(cd ../.. && pwd):" pdflatex -interaction=nonstopmode base.tex
+  biber base    # then inspect base.blg; `echo $?` gives the exit code
+  ```
+- To check a built PDF for citation hydration without opening it:
+  ```bash
+  pdftotext articles/<name>/<name>.pdf - | grep '<citekey>'
+  ```
+  Raw citekey present = unresolved; rendered author/title instead = hydrated.
 
 ### "opcolopcol" or "colht" artifacts in PDF output
 These appear when `\makeatletter`/`\makeatother` is not wrapping `\AtBeginDocument` hooks that use `@` in LaTeX internal commands (e.g., `\@colht`, `\@opcol`). Without the wrapper, `@` has catcode 12 (other) when the tokens are created, causing commands like `\@colht` to be split into `\@` (spacefactor) + literal `colht`.
@@ -326,12 +346,25 @@ These appear when `\makeatletter`/`\makeatother` is not wrapping `\AtBeginDocume
 ### `\vsize` reverts to small value in embed builds
 If embed pages break mid-section, check that `\global\@colht=\textheight` and `\global\@colroom=\textheight` are set in the `\AtBeginDocument` hook. The LaTeX kernel sets these from `\textheight` before hooks fire, and the output routine uses `\@colroom` to reset `\vsize` on every page break.
 
+## Proofreading
+
+No spellchecker is installed — proofread by reading the entire file (see the long-line tip below) plus targeted greps:
+
+```bash
+grep -n -o -E '\b([A-Za-z]+) \1\b' main.tex   # doubled words
+grep -n -o -E '\b[A-Z]{2}[a-z]+' main.tex     # case slips like "CHristians"
+grep -n -E 'teh |adn |recieve|seperate|occured|definately|maintan|commited|shoul [a-z]| dbe\b' main.tex
+```
+
+Recurring catches (2026-10): `maintanence`, `CHristians`, split words (`shoul dbe`), title casing (`Christianity And Liberalism`), missing hyphens in attributive compounds (`self serving`, `right wing`). Block quotations (Hansard, Belczak, etc.) are verbatim: when wording or punctuation looks off, verify against the source rather than editing the quote — including em-dash spacing, which is often a transcription artifact.
+
 ## Notes for Editing
 
 - Documents are **drafts** — "The Problem" and "The Solution" sections may be skeletal
-- `\biblever` and `\scripture` commands are defined but may not yet be used
+- `\scripture` is defined but not yet used; `\biblever` is in use (once in `reach_men_reach_families`, 13 times in `reflections_on_capital_punishment`, and called directly by footnotes rather than through `\scripture`)
 - `verse`, `gmverse`, and `alltt` packages are loaded but may be unused
 - QR code feature is set up but may be unused (no URLs in bibliography yet)
+- `main.tex` paragraphs are one-per-line and can exceed the reader's 2,000-character line limit — read long lines in full with `sed -n 'Np' main.tex | fold -s -w 118`
 - `_site/` is gitignored — generated output
 - `tags/` is committed by CI (removed from `.gitignore`)
 - `TASKS.md` is untracked — implementation task tracking
