@@ -26,8 +26,6 @@
           <a id="share-gmail" href="#" target="_blank" rel="noopener"><i class="fa-brands fa-google"></i> Gmail</a>
         </div>
       </div>
-      <a id="share-facebook" href="#" target="_blank" rel="noopener" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-      <a id="share-x" href="#" target="_blank" rel="noopener" title="X"><i class="fa-brands fa-x-twitter"></i></a>
     </div>
   </div>
   <div id="page-cover"></div>
@@ -90,12 +88,6 @@
         if (menu) menu.classList.remove("open");
       }
     });
-
-    document.getElementById("share-facebook").href =
-      "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl);
-
-    document.getElementById("share-x").href =
-      "https://twitter.com/intent/tweet?text=" + encodeURIComponent(shareTitle) + "&url=" + encodeURIComponent(shareUrl);
 
     var footerTitle = document.getElementById("footer-title");
     var header = document.getElementById("header");
