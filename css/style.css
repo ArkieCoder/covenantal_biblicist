@@ -496,11 +496,55 @@ strong { font-weight: bold; }
   transform: none;
 }
 
-/* === Responsive Footer Icons === */
+/* === Responsive Footer === */
 @media (max-width: 1023px) {
   #adobe-dc-view {
     height: auto;
     min-height: calc(100vh - 100px);
-    padding-bottom: 300px;
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  }
+  #footer-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15rem 0.4rem;
+    padding: 0.25rem 0.6rem calc(0.25rem + env(safe-area-inset-bottom, 0px));
+    min-height: auto;
+    height: auto;
+  }
+  #footer-title {
+    order: 1;
+    width: 100%;
+    transform: none;
+    opacity: 1;
+    font-size: 0.85rem;
+    flex-direction: row;
+    gap: 0.4rem;
+  }
+  .build-id {
+    order: 2;
+    position: static;
+    transform: none;
+    font-size: 0.45rem;
+    padding: 0.15rem 0;
+  }
+  #footer-bar .build-id {
+    position: static;
+    transform: none;
+    color: rgba(255,255,255,0.15);
+  }
+  #footer-bar.title-wrapped .build-id {
+    left: auto;
+    right: auto;
+    transform: none;
+  }
+  #footer-bar.title-wrapped #footer-title {
+    align-items: center;
+  }
+  #footer-icons {
+    order: 3;
+    gap: 0.5rem;
+  }
+  #footer-icons a {
+    font-size: 0.9rem;
   }
 }
