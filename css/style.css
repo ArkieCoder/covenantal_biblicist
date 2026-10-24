@@ -496,11 +496,33 @@ strong { font-weight: bold; }
   transform: none;
 }
 
-/* === Responsive Footer Icons === */
+/* === Responsive Footer (Mobile/Tablet) === */
 @media (max-width: 1023px) {
+  #footer-bar {
+    height: 50px;
+    padding: 0 1rem;
+  }
+  #footer-title {
+    font-size: 1.1rem;
+    transform: translateY(10px);
+  }
+  #footer-title.visible {
+    transform: translateY(0);
+  }
+  #footer-icons {
+    gap: 0.8rem;
+  }
+  #footer-icons a {
+    font-size: 1rem;
+  }
+  #footer-bar .build-id {
+    font-size: 0.45rem;
+    bottom: 1px;
+  }
   #adobe-dc-view {
     height: auto;
-    min-height: calc(100vh - 100px);
-    padding-bottom: 300px;
+    min-height: calc(100vh - 50px);
+    padding-top: 60px;
+    padding-bottom: calc(50px + 40px);
   }
 }
