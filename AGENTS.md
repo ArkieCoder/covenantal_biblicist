@@ -213,11 +213,11 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 - `.abstract p` — justified text, paragraph spacing
 - `.abstract-footer` — flexbox for last paragraph + "Read ☞" button
 - `.read-more` — small-caps, bordered box, inline-flex with finger icon (U+261E)
-- `#footer-bar` — fixed 100px bar, flex, vertically centered content
+- `#footer-bar` — fixed 100px bar on desktop, 50px bar on mobile/tablet (`max-width: 1023px`), flex, vertically centered content
 - `.share-email-wrap` — dropdown container for email options
 - `.share-email-menu` — popover menu above email icon
-- `#adobe-dc-view` — PDF viewer container; `height: calc(100vh - 100px)` on desktop, `min-height` on mobile/tablet to prevent PDF cutoff
-- `#footer-icons` — flex row on desktop, stacked column on mobile/tablet (`max-width: 1023px`)
+- `#adobe-dc-view` — PDF viewer container; `height: calc(100vh - 100px)` on desktop, `min-height: calc(100vh - 50px)` on mobile/tablet to prevent PDF cutoff
+- `#footer-icons` — flex row on desktop and mobile/tablet
 
 ## Document Structure (LaTeX)
 
