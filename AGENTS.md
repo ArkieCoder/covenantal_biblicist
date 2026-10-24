@@ -365,6 +365,8 @@ Recurring catches (2026-10): `maintanence`, `CHristians`, split words (`shoul db
 - `verse`, `gmverse`, and `alltt` packages are loaded but may be unused
 - QR code feature is set up but may be unused (no URLs in bibliography yet)
 - `main.tex` paragraphs are one-per-line and can exceed the reader's 2,000-character line limit — read long lines in full with `sed -n 'Np' main.tex | fold -s -w 118`
+- When changing `article-template.html.j2`, you must rebuild all articles (`./build.sh`) so that each article's `index.html` is regenerated from the template — just changing the template does not update existing article pages
+- Social share buttons were removed in favor of direct URL sharing; Facebook's "User opted out of platform" restrictions make SDK/share buttons unreliable
 - `_site/` is gitignored — generated output
 - `tags/` is committed by CI (removed from `.gitignore`)
 - `TASKS.md` is untracked — implementation task tracking
