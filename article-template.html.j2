@@ -3,7 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Covenantal Biblicist</title>
+  <title>{{ article_title }} | Covenantal Biblicist</title>
+  <meta property="og:title" content="{{ article_title }} | Covenantal Biblicist" />
+  <meta property="og:description" content="{{ article_description }}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="{{ site_url }}{{ page_path }}" />
+  <meta property="og:site_name" content="Covenantal Biblicist" />
+  <meta property="og:image" content="{{ site_url }}{{ og_image_path }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ article_title }} | Covenantal Biblicist" />
+  <meta name="twitter:description" content="{{ article_description }}" />
+  <meta name="twitter:image" content="{{ site_url }}{{ og_image_path }}" />
+  <link rel="canonical" href="{{ site_url }}{{ page_path }}" />
   <link rel="stylesheet" href="../../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script data-goatcounter="https://covenantbiblicist.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

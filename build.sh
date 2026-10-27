@@ -16,6 +16,10 @@ CROPCBOX="$SCRIPT_DIR/set-cropbox.py"
 # Unified build ID (epoch seconds) for all pages
 BUILD_ID="$(date +%s)"
 export BUILD_ID
+export SITE_URL="${SITE_URL:-https://covenantalbiblicist.unitedentropy.com}"
+
+# Generate OG images
+python3 "$SCRIPT_DIR/generate_og_images.py" 2>/dev/null || true
 
 build_article() {
   local dir="$1"
@@ -82,6 +86,11 @@ assemble_site() {
   # Copy JS
   cp "$SCRIPT_DIR/js/tagcloud.js" "$SITE_DIR/js/"
   cp "$SCRIPT_DIR/js/visitor-count.js" "$SITE_DIR/js/"
+
+  # Copy assets (OG images, fonts if needed)
+  if [ -d "$SCRIPT_DIR/assets" ]; then
+    cp -r "$SCRIPT_DIR/assets" "$SITE_DIR/"
+  fi
 
   # Copy root index
   cp "$SCRIPT_DIR/index.html" "$SITE_DIR/"

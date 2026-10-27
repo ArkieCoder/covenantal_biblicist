@@ -15,6 +15,7 @@ jobs:
       image: texlive/texlive:latest
     env:
       ADOBE_CLIENT_ID: ${{ secrets.ADOBE_CLIENT_ID }}
+      SITE_URL: https://covenantalbiblicist.unitedentropy.com
     steps:
       - uses: actions/checkout@v6
       - name: Install Python dependencies
