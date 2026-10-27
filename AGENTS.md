@@ -142,9 +142,31 @@ Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\
 
 ### Dependencies
 - TeX distribution (TeX Live/MacTeX): `pdflatex`, `biber`, `tufte-handout`, all packages
-- Python 3: `pikepdf`, `jinja2`, `pyyaml`
+- Python 3: `pikepdf`, `jinja2`, `pyyaml`, `Pillow`
 - `ghostscript` (for bounding box detection)
 - `pikepdf` (for CropBox manipulation)
+- System libs for Pillow in CI: `libjpeg-dev`, `zlib1g-dev`, `libpng-dev`, `libfreetype6-dev`
+
+## Open Graph Preview Images
+
+### Overview
+- **Generator**: `generate_og_images.py` creates 1200×630 PNG previews for social sharing
+- **Output**: `assets/og/{article_name}.png` for published articles, plus `site.png` and `about.png`
+- **Build integration**: `build.sh` runs the generator early and copies `assets/` to `_site/`
+
+### Design
+- **Background**: `#2c3539` (gunmetal)
+- **Blog title** ("COVENANTAL BIBLICIST"): Copperplate, white, uppercased, centered horizontally
+- **Separator**: Sans-serif tilde `~` (Helvetica) with generous vertical spacing
+- **Article title**: Palatino Italic (matches tufte/psnfss), white, centered, auto-wrapped, italic. Font size auto-shrinks for long titles (max 4 lines)
+- **Border**: Double white border (outer 1px at inset 2px, inner 1px at inset 8px with 6px gap) with L-shaped corner flourishes
+- **Site/About pages**: Blog title centered vertically with no separator
+
+### Implementation
+- **Fonts**: Bundled in `fonts/` for reproducibility (Copperplate.ttc, Palatino.ttc, cmunti.otf, cmunrm.otf, lmroman*.otf). Copied from system/TeX Live.
+- **Templates**: All templates include OG and Twitter Card meta tags. `render_template.py` passes `site_url`, `og_image_path`, and `page_path` from environment.
+- **Environment**: `SITE_URL` defaults to `https://covenantalbiblicist.unitedentropy.com` (set in CI via `deploy.yml`)
+- **CI**: Requires image library headers for Pillow (`libjpeg-dev`, `zlib1g-dev`, `libpng-dev`, `libfreetype6-dev`) - added to workflow
 
 ## Article Metadata (`metadata.yaml`)
 ```yaml
