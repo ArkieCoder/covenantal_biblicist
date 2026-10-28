@@ -7,6 +7,9 @@
 \usepackage{qrcode}
 \usepackage[fontsize=9pt]{fontsize}
 \usepackage[T1]{fontenc}
+\usepackage{eso-pic}
+\usepackage{microtype}
+\usepackage{lastpage}
 \makeatletter
 \input{lgrenc.def}
 \makeatother
@@ -29,6 +32,7 @@
 
 %% Custom commands
 \newcommand{\biblever}[1]{(\textsc{\MakeLowercase{#1}})}
+\newcommand{\texit}{\textit}
 
 \newcommand{\grk}[1]{{\fontencoding{LGR}\selectfont #1\fontencoding{T1}\selectfont}}
 \newcommand{\heb}[1]{{\fontencoding{HE8}\fontfamily{david}\selectfont #1}}
@@ -160,6 +164,41 @@
     }
   }
   \makeatother
+\fi
+
+%% Article URL for printable footer
+\providecommand{\articlename}{}
+\newcommand{\articleurl}{https://covenantalbiblicist.unitedentropy.com/articles/\articlename/}
+
+%% Printable footer (only for non-embed versions)
+\ifdefined\embedversion
+  % No footer for embedded versions
+\else
+  \newlength{\printftrqrcodeheight}
+  \setlength{\printftrqrcodeheight}{4.5em}
+  \AddToShipoutPictureBG{%
+    \ifnum\value{page}=\getpagerefnumber{LastPage}%
+      % Full-width rule ABOVE the footer
+      \AtPageLowerLeft{%
+        \put(0pt, \dimexpr 1in + \hoffset + \oddsidemargin + 0.054in + 12mm\relax){%
+          \rule{\paperwidth}{0.4pt}%
+        }%
+      }%
+      % QR code and text BELOW the rule
+      \AtPageLowerLeft{%
+        \put(\dimexpr 1in + \hoffset + \oddsidemargin\relax, \dimexpr 1in + \hoffset + \oddsidemargin + 0.0in\relax){%
+          \begin{minipage}[c][\printftrqrcodeheight][c]{\printftrqrcodeheight}%
+            \qrcode[height=\printftrqrcodeheight, level=H]{\articleurl}%
+          \end{minipage}%
+          \hspace{8pt}%
+          \begin{minipage}[c][\printftrqrcodeheight][c]{\dimexpr \paperwidth - 2\dimexpr 1in + \hoffset + \oddsidemargin \relax - \printftrqrcodeheight - 8pt\relax}%
+            \raggedright
+            This article is from the \textls{\textsc{\rmfamily Covenantal Biblicist}} blog, which can be contacted electronically via \texttt{jhr@unitedentropy.com}.%
+          \end{minipage}%
+        }%
+      }%
+    \fi
+  }
 \fi
 
 \input{main.tex}
