@@ -305,6 +305,8 @@ Block scripture quotations with attribution
 - **`\textit{}`**: Primary emphasis (used extensively)
 - **`\textsc{}`**: Used in `\biblever` for verse references
 - **Bold/Underline**: Never used
+- **Footnote markers**: Use lining figures (`pplx`) for superscript footnote/citation markers to prevent misalignment of adjacent numbers; footnote body text retains default figures
+- **Footnote placement**: Punctuation precedes footnote and citation markers (e.g., `text.\footnote{...}` not `text\footnote{...}.`)
 
 ## CI/CD (`.github/workflows/`)
 
