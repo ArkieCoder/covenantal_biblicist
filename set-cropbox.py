@@ -8,6 +8,7 @@ import sys
 pad = 2
 TOP_PAD = 15
 MIN_HEIGHT = 200
+EXTRA_WHITESPACE_LAST_PAGE = 200  # Configurable amount of whitespace to add to bottom of last page (in points)
 input_pdf = sys.argv[1] if len(sys.argv) > 1 else "main.pdf"
 output_pdf = sys.argv[2] if len(sys.argv) > 2 else input_pdf.replace(".pdf", "-embed.pdf")
 
@@ -25,4 +26,19 @@ for i, page in enumerate(pdf.pages):
         lry = max(0, ury - MIN_HEIGHT)
     page.CropBox = pikepdf.Array([0, lry, 612, ury])
     page.MediaBox = pikepdf.Array([0, lry, 612, ury])
+
+# Add extra whitespace to bottom of last page after cropping
+if len(pdf.pages) > 0 and EXTRA_WHITESPACE_LAST_PAGE > 0:
+    last_page = pdf.pages[-1]
+    crop = last_page.CropBox
+    media = last_page.MediaBox
+    # Extend bottom edge downward (decrease lry in PDF coords adds space below)
+    new_lry = float(crop[1]) - EXTRA_WHITESPACE_LAST_PAGE
+    if new_lry < 0:
+        new_lry = 0
+    crop[1] = new_lry
+    media[1] = new_lry
+    last_page.CropBox = crop
+    last_page.MediaBox = media
+
 pdf.save(output_pdf)
