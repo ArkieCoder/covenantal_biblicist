@@ -105,6 +105,7 @@ The embed version uses `\AtBeginDocument` hooks to override TeX's page dimension
 - `pad = 2` (tight to content bounds)
 - `TOP_PAD = 15` — adds 15pt of padding above content on each page
 - `MIN_HEIGHT = 200` — pages with content < 200pt get expanded CropBox anchored at content top
+- `EXTRA_WHITESPACE_LAST_PAGE = 200` — after cropping, adds configurable extra whitespace to the bottom of the last page (extends CropBox/MediaBox downward) to prevent clipping in the Adobe PDF Embed viewer
 - This prevents the Adobe PDF viewer from clipping sparse pages (e.g., last page with short section)
 - Pages with content ≥ 200pt get tight cropping
 - **MediaBox is resized to match CropBox** — eliminates whitespace gaps in the Adobe PDF Embed viewer

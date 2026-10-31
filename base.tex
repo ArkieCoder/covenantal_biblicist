@@ -201,4 +201,11 @@
   }
 \fi
 
+\makeatletter
+% Use lining figures for footnote/sidenote markers (fixes misalignment of adjacent oldstyle figures)
+\renewcommand{\@makefnmark}{%
+  \hbox{\@textsuperscript{\fontfamily{pplx}\selectfont\footnotesize\@thefnmark}}%
+}
+\makeatother
+
 \input{main.tex}
