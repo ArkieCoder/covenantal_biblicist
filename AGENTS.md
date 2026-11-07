@@ -311,6 +311,7 @@ Block scripture quotations with attribution
 - **Bold/Underline**: Never used
 - **Footnote markers**: Use lining figures (`pplx`) for superscript footnote/citation markers to prevent misalignment of adjacent numbers; footnote body text retains default figures
 - **Footnote placement**: Punctuation precedes footnote and citation markers (e.g., `text.\footnote{...}` not `text\footnote{...}.`)
+- **Dashes**: Use `--` (LaTeX en dash) consistently in article source; avoid Unicode em dashes (`—`) for consistency
 
 ## CI/CD (`.github/workflows/`)
 
