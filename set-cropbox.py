@@ -8,7 +8,7 @@ import sys
 pad = 2
 TOP_PAD = 15
 MIN_HEIGHT = 200
-EXTRA_WHITESPACE_LAST_PAGE = 200  # Configurable amount of whitespace to add to bottom of last page (in points)
+EXTRA_WHITESPACE_LAST_PAGE = 215  # Configurable amount of whitespace to add to bottom of last page (in points)
 input_pdf = sys.argv[1] if len(sys.argv) > 1 else "main.pdf"
 output_pdf = sys.argv[2] if len(sys.argv) > 2 else input_pdf.replace(".pdf", "-embed.pdf")
 
