@@ -9,6 +9,10 @@
 - **Web Viewer**: Jinja2 templates with Adobe PDF Embed API, Font Awesome icons
 - **Deployment**: GitHub Pages via GitHub Actions
 
+## Content Policy
+
+- **ALL ARTICLE CONTENT IS HUMAN-CREATED**: Never use AI tools to generate, rewrite, or substantively edit the content of articles in `articles/*/main.tex`. All theological arguments, ideas, and prose must remain entirely human-authored. AI assistance is only permitted for technical/build infrastructure, formatting fixes, and documentation - never for article substance.
+
 ## Repository Structure
 
 ```
