@@ -10,6 +10,8 @@
 \usepackage{eso-pic}
 \usepackage{microtype}
 \usepackage{lastpage}
+\usepackage{tikz}
+\usetikzlibrary{tikzmark,calc}
 \makeatletter
 \input{lgrenc.def}
 \makeatother
@@ -46,6 +48,24 @@
   #1%
   \scriptref{#2}%
   \end{quote}%
+}
+
+% Abstract environment: "Abstract." prefix with enlarged initial A
+% Vertical bar drawn in left margin via tikz overlay (safe for tufte margin notes/footnotes)
+\renewenvironment{abstract}{%
+  \begin{quotation}%
+  \noindent
+  \tikzmark{abstract-start}%
+  {\large A}{\scriptsize\textit{BSTRACT.}}\hspace{0.6em}%
+  \ignorespaces
+}{%
+  \par\tikzmark{abstract-end}%
+  \tikz[remember picture,overlay]%
+    \draw[line width=1.5pt]
+      let \p1=($(pic cs:abstract-start)+(0,1.6ex+0.5em)$),
+          \p2=($(pic cs:abstract-end)+(0,-0.4ex+1em)$) in
+      ([xshift=-1em]\x1,\y1) -- ([xshift=-1em]\x1,\y2);%
+  \end{quotation}%
 }
 
 \geometry{

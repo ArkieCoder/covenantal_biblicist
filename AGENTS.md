@@ -256,6 +256,9 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 ### Abstract
 - Standard `abstract` environment immediately after `\maketitle`
 - Multi-paragraph abstracts are supported and used
+- `tufte-handout` defines `abstract` as a `quotation` wrapper; this project overrides it in `base.tex` to add an “Abstract.” prefix and custom styling
+- **Do not wrap abstract content in framing/boxing environments** (`framed`, `tcolorbox`, `mdframed`, `minipage`, etc.) — tufte-handout footnotes use `\marginpar`/sidenotes and will break inside boxes
+- For decorative elements (e.g., a left vertical rule), use non-boxing techniques such as a `tikz`/`tikzmark` overlay with `remember picture` (safe for margin notes; requires multiple pdflatex passes, which `build.sh` already performs)
 
 ### Preamble Organization (`base.tex`)
 1. `\documentclass[justified, nobib]{tufte-handout}`
