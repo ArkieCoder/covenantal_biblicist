@@ -150,7 +150,7 @@ Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\
 - Python 3: `pikepdf`, `jinja2`, `pyyaml`, `Pillow`
 - `ghostscript` (for bounding box detection)
 - `pikepdf` (for CropBox manipulation)
-- System libs for Pillow in CI: `libjpeg-dev`, `zlib1g-dev`, `libpng-dev`, `libfreetype6-dev`
+- System/native deps for Python packages in CI (`texlive/texlive:latest`): `python3-dev`, `build-essential`, `pkg-config`, `libqpdf-dev` (for `pikepdf`), and `libjpeg-dev`, `zlib1g-dev`, `libpng-dev`, `libfreetype6-dev` (for `Pillow`). Required when pip falls back to source builds (e.g., newer Python versions like 3.14 without matching wheels).
 
 ## Open Graph Preview Images
 
