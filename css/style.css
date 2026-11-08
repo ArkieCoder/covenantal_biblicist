@@ -146,6 +146,17 @@ body {
   font-size: 0.85rem;
 }
 
+/* === Hyphenation for justified text === */
+#content p,
+#content li,
+.abstract p,
+.abstract-footer p {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+  hyphenate-limit-chars: 6 3 3;
+}
+
 /* === Content Container === */
 #main-layout {
   max-width: 950px;
