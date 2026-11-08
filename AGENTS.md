@@ -149,8 +149,7 @@ Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\
 - TeX distribution (TeX Live/MacTeX): `pdflatex`, `biber`, `tufte-handout`, all packages
 - Python 3: `pikepdf`, `jinja2`, `pyyaml`, `Pillow`
 - `ghostscript` (for bounding box detection)
-- `pikepdf` (for CropBox manipulation)
-- System/native deps for Python packages in CI (`texlive/texlive:latest`): `python3-dev`, `build-essential`, `pkg-config`, `libqpdf-dev` (for `pikepdf`), and `libjpeg-dev`, `zlib1g-dev`, `libpng-dev`, `libfreetype6-dev` (for `Pillow`). Required when pip falls back to source builds (e.g., newer Python versions like 3.14 without matching wheels).
+- CI (`texlive/texlive:latest` / Debian) installs Python deps via OS packages: `python3-pil`, `python3-yaml`, `python3-jinja2`, `python3-pikepdf` (avoids pip/source-build issues across changing Python versions)
 
 ## Open Graph Preview Images
 
@@ -320,12 +319,13 @@ Block scripture quotations with attribution
 
 ### `deploy.yml`
 - Triggers on push to `master`
+- `concurrency: deploy-master` (no cancel-in-progress) serializes deploy runs
 - Runs in `texlive/texlive:latest` Docker container (has pdflatex, biber, Ghostscript, Python)
 - `ADOBE_CLIENT_ID` injected from GitHub secret
-- Python deps installed via `pip3 install --break-system-packages -r requirements.txt`
+- Python deps installed via OS packages: `python3-pil`, `python3-yaml`, `python3-jinja2`, `python3-pikepdf`
 - Builds all articles, runs Pagefind for search indexing
 - Commits built artifacts (PDFs, HTML, tags/) back to repo with `[skip ci]`
-- Uses `git pull --rebase origin master` before push to handle concurrent changes
+- Uses `git pull --rebase -X theirs origin master` before push (with fallback conflict resolution for generated files) to handle concurrent changes
 - `git config --global --add safe.directory` required (Docker checkout owned by root, CI runs as UID 1001)
 - `actions/configure-pages@v5` runs AFTER the commit step (running it before breaks git credential helpers)
 - Deploys to GitHub Pages via `actions/upload-pages-artifact` from `_site/`

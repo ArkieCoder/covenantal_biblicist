@@ -1,4 +1,8 @@
-pikepdf==9.11.0
-Jinja2==3.1.6
-PyYAML==6.0.3
+# CI uses OS packages in texlive/texlive:latest (Debian): python3-pil, python3-yaml, python3-jinja2, python3-pikepdf
+# For local development, install as needed via pip or your OS package manager:
+# pikepdf
+# Jinja2
+# PyYAML
+# Pillow
+
 Pillow==10.4.0

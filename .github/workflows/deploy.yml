@@ -3,6 +3,10 @@ on:
   push:
     branches: [master]
 
+concurrency:
+  group: deploy-master
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pages: write
@@ -18,13 +22,10 @@ jobs:
       SITE_URL: https://covenantalbiblicist.unitedentropy.com
     steps:
       - uses: actions/checkout@v6
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           apt-get update && apt-get install -y \
-            python3-pip python3-dev build-essential pkg-config \
-            libqpdf-dev \
-            libjpeg-dev zlib1g-dev libpng-dev libfreetype6-dev
-          pip3 install --break-system-packages -r requirements.txt
+            python3-pil python3-yaml python3-jinja2 python3-pikepdf
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -40,7 +41,14 @@ jobs:
           git add articles/*/*.pdf articles/*/*.html index.html tags/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update built artifacts [skip ci]"
-          git pull --rebase origin master
+          git fetch origin master
+          if ! git -c core.editor=true pull --rebase -X theirs origin master; then
+            for f in $(git diff --name-only --diff-filter=U); do
+              echo "Resolving conflict (keeping CI artifact): $f"
+              git checkout --theirs -- "$f" && git add "$f"
+            done
+            git -c core.editor=true rebase --continue
+          fi
           git push
       - uses: actions/configure-pages@v5
       - name: Upload Pages artifact
