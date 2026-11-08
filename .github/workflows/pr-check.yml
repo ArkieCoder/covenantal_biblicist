@@ -23,6 +23,7 @@ jobs:
           filters: |
             shared:
               - 'build.sh'
+              - 'base.tex'
               - 'set-cropbox.py'
               - 'article-template.html.j2'
               - 'render_template.py'
@@ -31,24 +32,25 @@ jobs:
               - 'index-template.html.j2'
               - 'tag-index-template.html.j2'
               - 'tag-page-template.html.j2'
+              - 'css/style.css'
       - id: changes
         run: |
           CHANGED=$(git diff --name-only origin/master...HEAD | grep '^articles/' | cut -d/ -f2 | sort -u)
           if [ "${{ steps.filter.outputs.shared }}" = "true" ] || [ -n "$CHANGED" ]; then
             if [ "${{ steps.filter.outputs.shared }}" = "true" ]; then
-              ALL=$(ls -d articles/*/ 2>/dev/null | xargs -I{} basename {} | jq -R -s -c 'split("\n") | map(select(length > 0)) | map({article: .})')
+              ALL=$(ls -d articles/*/ 2>/dev/null | xargs -I{} basename {} | jq -R -s -c '{include: (split("\n") | map(select(length > 0)) | map({article: .}))}')
               echo "matrix=$ALL" >> $GITHUB_OUTPUT
             else
-              MATRIX=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0)) | map({article: .})')
+              MATRIX=$(echo "$CHANGED" | jq -R -s -c '{include: (split("\n") | map(select(length > 0)) | map({article: .}))}')
               echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
             fi
           else
-            echo "matrix={\"article\":[]}" >> $GITHUB_OUTPUT
+            echo 'matrix={"include":[]}' >> $GITHUB_OUTPUT
           fi
 
   build:
     needs: detect-changes
-    if: fromJson(needs.detect-changes.outputs.matrix).article | length > 0
+    if: fromJson(needs.detect-changes.outputs.matrix).include[0] != null
     runs-on: ubuntu-latest
     container:
       image: texlive/texlive:latest
