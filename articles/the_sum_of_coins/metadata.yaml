@@ -1,0 +1,11 @@
+title: "The Sum of Coins"
+author: "Jason Reeves"
+date: 2025-06-01
+status: draft
+tags:
+  - combinatorics
+  - generating functions
+  - dynamic programming
+  - coin change
+  - mathematics
+description: "An exploration of the coin sum problem using generating functions, recurrence relations, and software implementations."

@@ -170,7 +170,7 @@ Mobile/tablet variants share the same geometry as desktop (`base.tex` default `\
 - **Fonts**: Bundled in `fonts/` for reproducibility (Copperplate.ttc, Palatino.ttc, cmunti.otf, cmunrm.otf, lmroman*.otf). Copied from system/TeX Live.
 - **Templates**: All templates include OG and Twitter Card meta tags. `render_template.py` passes `site_url`, `og_image_path`, and `page_path` from environment.
 - **Environment**: `SITE_URL` defaults to `https://covenantalbiblicist.unitedentropy.com` (set in CI via `deploy.yml`)
-- **CI**: Requires image library headers for Pillow (`libjpeg-dev`, `zlib1g-dev`, `libpng-dev`, `libfreetype6-dev`) - added to workflow
+- **CI**: `generate_og_images.py` uses Pillow via the OS `python3-pil` package in CI (no pip source build)
 
 ## Article Metadata (`metadata.yaml`)
 ```yaml
@@ -236,13 +236,14 @@ Renders Jinja2 article template. Reads `metadata.yaml` and passes:
 ```
 
 ### Key Patterns
+- Justified HTML text (`#content p`, `#content li`, `.abstract p`, `.abstract-footer p`) uses `hyphens: auto` + `-webkit-hyphens: auto`, `overflow-wrap: break-word`, and `hyphenate-limit-chars: 6 3 3` to reduce awkward spacing/rivers; requires `<html lang="en">` (already set in templates).
 - `.abstract p` — justified text, paragraph spacing
 - `.abstract-footer` — flexbox for last paragraph + "Read ☞" button
 - `.read-more` — small-caps, bordered box, inline-flex with finger icon (U+261E)
 - `#footer-bar` — fixed 100px bar on desktop, 50px bar on mobile/tablet (`max-width: 1023px`), flex, vertically centered content
 - `.share-email-wrap` — dropdown container for email options
 - `.share-email-menu` — popover menu above email icon
-- `#adobe-dc-view` — PDF viewer container; `height: calc(100vh - 100px)` on desktop, `min-height: calc(100vh - 50px)` on mobile/tablet to prevent PDF cutoff
+- `#adobe-dc-view` — PDF viewer container; `height: calc(100vh - 100px)` on desktop, `min-height: calc(100vh - 50px)` on mobile/tablet to prevent PDF cutoff. Adobe `IN_LINE` embeds may scroll inside the viewer/iframe rather than the document viewport, which can prevent mobile browser address-bar auto-hide.
 - `#footer-icons` — flex row on desktop and mobile/tablet
 
 ## Document Structure (LaTeX)
@@ -331,9 +332,11 @@ Block scripture quotations with attribution
 - Deploys to GitHub Pages via `actions/upload-pages-artifact` from `_site/`
 
 ### `pr-check.yml`
-- Triggers on PRs to `master` with `types: [opened, synchronize, reopened]` (without explicit types, GitHub also triggers on push events associated with merged PRs, causing spurious 0s-duration failures)
-- Uses `dorny/paths-filter` to detect changed articles
-- Matrix builds only changed articles (or all if shared files changed)
+- Triggers on PRs to `master` with `types: [opened, synchronize, reopened]`
+- Uses `dorny/paths-filter` for shared files and `git diff` for changed `articles/*`; matrix builds only affected articles (or all if shared files change)
+- Shared-path filter includes build/infra inputs such as `build.sh`, `base.tex`, `set-cropbox.py`, templates, generators, and `css/style.css`
+- Python deps installed via OS packages: `python3-pil`, `python3-yaml`, `python3-jinja2`, `python3-pikepdf`
+- Matrix/`if:` logic must use valid GitHub Actions expressions (e.g., `fromJson(...).include[0] != null`) and a proper matrix shape like `{"include":[{"article":"..."}]}`; invalid expressions (e.g., JQ-style `| length`) can cause GitHub to report spurious 0s push runs with “workflow file issue”
 - Runs Pagefind for search indexing
 
 ## Content Patterns
