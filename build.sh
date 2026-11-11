@@ -19,7 +19,7 @@ export BUILD_ID
 export SITE_URL="${SITE_URL:-https://covenantalbiblicist.unitedentropy.com}"
 
 # Generate OG images
-python3 "$SCRIPT_DIR/generate_og_images.py" 2>/dev/null || true
+python3 "$SCRIPT_DIR/generate_og_images.py" || true
 
 build_article() {
   local dir="$1"

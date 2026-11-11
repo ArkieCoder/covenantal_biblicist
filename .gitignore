@@ -10,4 +10,5 @@ _site/
 *.fdb_latexmk
 *.synctex.gz
 *.swp
+.DS_Store
 node_modules/
