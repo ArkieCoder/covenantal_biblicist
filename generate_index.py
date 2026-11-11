@@ -13,6 +13,57 @@ SCRIPT_DIR = Path(__file__).parent
 ARTICLES_DIR = SCRIPT_DIR / "articles"
 
 
+def strip_command(text, command):
+    """Remove every ``\command[opt]{arg}`` occurrence, handling nested braces.
+
+    The command name must not run into further letters, so ``cite`` will not
+    match ``\citet``.
+    """
+    pattern = re.compile(r'\\' + command + r'(?![A-Za-z])')
+    out = []
+    i = 0
+    while True:
+        match = pattern.search(text, i)
+        if not match:
+            out.append(text[i:])
+            break
+
+        start = match.start()
+        pos = match.end()
+
+        # Skip an optional argument such as \footcite[...]{...}
+        while pos < len(text) and text[pos] == '[':
+            depth = 0
+            while pos < len(text):
+                if text[pos] == '[':
+                    depth += 1
+                elif text[pos] == ']':
+                    depth -= 1
+                    if depth == 0:
+                        pos += 1
+                        break
+                pos += 1
+
+        if pos < len(text) and text[pos] == '{':
+            depth = 0
+            while pos < len(text):
+                if text[pos] == '{':
+                    depth += 1
+                elif text[pos] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        pos += 1
+                        break
+                pos += 1
+            out.append(text[i:start])
+            i = pos
+        else:
+            out.append(text[i:pos])
+            i = pos
+
+    return ''.join(out)
+
+
 def extract_abstract(tex_path):
     """Extract abstract from main.tex, convert LaTeX to approximate HTML with paragraphs."""
     content = tex_path.read_text()
@@ -27,11 +78,26 @@ def extract_abstract(tex_path):
     raw = re.sub(r'\\textit\{([^}]+)\}', r'<em>\1</em>', raw)
     raw = re.sub(r'\\textbf\{([^}]+)\}', r'<strong>\1</strong>', raw)
 
-    # Strip footnotes and citations
-    raw = re.sub(r'\\footnote\{[^}]*\}', '', raw)
-    raw = re.sub(r'\\footcite\[([^\]]*)\]\{[^}]*\}', '', raw)
-    raw = re.sub(r'\\footcite\{[^}]*\}', '', raw)
-    raw = re.sub(r'\\cite\{[^}]*\}', '', raw)
+    # Strip footnotes and citations (balanced braces; abstracts may nest commands)
+    for command in ('footnote', 'footcite', 'cite'):
+        raw = strip_command(raw, command)
+
+    # Unescape LaTeX special characters
+    raw = raw.replace(r'\&', '&amp;')
+    raw = raw.replace(r'\%', '%')
+    raw = raw.replace(r'\$', '$')
+    raw = raw.replace(r'\#', '#')
+    raw = raw.replace(r'\_', '_')
+
+    # Convert common text commands/symbols to HTML
+    raw = re.sub(r'\\emph\{([^}]+)\}', r'<em>\1</em>', raw)
+    raw = re.sub(r'\\textsc\{([^}]+)\}', r'\1', raw)
+    raw = re.sub(r'\\pounds(?![a-zA-Z])', '&pound;', raw)
+    raw = re.sub(r'\\textsterling(?![a-zA-Z])', '&pound;', raw)
+    raw = re.sub(r'\\textcent(?![a-zA-Z])', '&cent;', raw)
+    raw = re.sub(r'\\ldots(?![a-zA-Z])|\\dots(?![a-zA-Z])', '&hellip;', raw)
+    raw = re.sub(r'\\[,;:]', ' ', raw)
+    raw = raw.replace('~', ' ')
 
     # Strip other LaTeX commands
     raw = re.sub(r'\\newline', ' ', raw)

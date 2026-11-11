@@ -9,4 +9,5 @@ _site/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.swp
 node_modules/

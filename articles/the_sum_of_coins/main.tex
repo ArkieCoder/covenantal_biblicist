@@ -32,24 +32,24 @@
 \extrafloats{100}
 
 \begin{abstract}
-The classic "coin sum" problem was popularized in modern times by mathematician George Polya in an article published in 1956.  It is part of the branch of mathematics known as combinatorics, which is the mathematics of counting things in real and virtual worlds, and also has some overlaps with things like probability.  Computer scientists especially love combinatoric problems, because these sorts of problems help them to demonstrate how very clever they are.  The machines these scientists deal with are well suited, if appropriately prodded, to produce fast and accurate solutions to such problems which are performant at scale.
+The classic "coin sum" problem was popularized in modern times by mathematician George Polya in an article published in 1956.\footcite{polya}  It is part of the branch of mathematics known as combinatorics, which is the mathematics of counting things in real and virtual worlds, and also has some overlaps with things like probability.  Computer scientists especially love combinatoric problems, because these sorts of problems help them to demonstrate how very clever they are.  The machines these scientists deal with are well suited, if appropriately prodded, to produce fast and accurate solutions to such problems which are performant at scale.
 
-The inspiration for this write up was Project Euler Problem \#31, which uses coins from the United Kingdom.  Given these coins, the pitiful human solving the problem must conjure up the number of ways these coins can total up to \pounds2, or 200\textcent.
+The inspiration for this write up was Project Euler Problem \#31,\footcite{euler31} which uses coins from the United Kingdom.  Given these coins, the pitiful human solving the problem must conjure up the number of ways these coins can total up to \pounds2, or 200\textcent.
 \end{abstract}
 
 \ifdefined\embedversion\newpage\fi
 \section{L33+c0d3 Rant}
-A cursory search of the Interwebs found a number of solutions having various $O()$ values, such as the recursive solution, the dynamic programming solution, and the space-optimized dynamic programming solution.  So, finding a solution that could actually solve the problem in near-constant time was not a big problem.  
+A cursory search of the Interwebs found a number of solutions to the coin sum problem having various $O()$ values, such as the recursive solution, the dynamic programming solution, and the space-optimized dynamic programming solution.  So, finding a solution that could actually solve the problem in near-constant time was not a big problem.  
 
-It is said that there are companies out there that, when interviewing a prospective computer scientist, will actually expect them to produce a solution to such a problem in real time while they watch.  Perhaps I am not a very good computer scientist, but I can say that I never encountered this problem in my formal education, and even though I have a Bachelor's degree in both Computer Science and Mathematics, it took me a good few weeks of research and head scratching in order to even partially wrap my brain around this problem.
+It is said that there are companies out there that, when interviewing a prospective computer scientist, will actually expect them to produce a solution to such a problem in real time while watched by company agents.  Perhaps I am not a very good computer scientist, but I can say that I never encountered this particular problem in my formal education, and even though I have a Bachelor's degree in both Computer Science and Mathematics, it took me a good few weeks of research and head scratching in order to even partially wrap my brain around it.
 
 What I found difficult to comprehend, in addition to how the common solutions worked, was why companies would waste time requiring interviewees to jump through these hoops in order to secure a job in software engineering.  Are these the sorts of problems the engineer is going to be required to solve day to day?  Are you asking them to memorize something they could easily look up, wasting brain resources?  How can you tell the difference between someone \textit{actually} working through the problem live vs. regurgitating a memorized solution?  The answers to these questions, I suspect, are "No", "No", and "We can't".  What's the purpose of forcing someone to solve a problem \textit{while you watch} that neither you nor they understand?  Power dynamic, much?
 
-I immediately apprehended \textit{that} the software solutions I found online worked to find the answer, but I could not explain \textit{how} they worked.  My suspicion is that most people asking these questions in interviews, as well as most people being interviewed, are also ill-equipped to make such explanations.  I make this conjecture for two reasons: 1) I have been keenly observing human nature for somewhere in the neighborhood of half a century, and 2) the explanations I found online were largely unsatisfying, full of unproductive hand-waving, or, even worse, statements such as "just memorize these formulas and you'll be fine".
+I immediately apprehended \textit{that} the software solutions I found online worked to find the answer, but I could not explain \textit{how} they worked.  My suspicion is that most people asking these questions in interviews, as well as most people being interviewed, are also ill-equipped to make such explanations.  I make this conjecture for two reasons: 1) I have been keenly observing human nature for somewhere in the neighborhood of half a century, and 2) the explanations I found online were largely unsatisfying, full of unproductive hand-waving, or, even worse, statements such as "just memorize these formulas and you'll be fine".\footnote{\textit{N.B.} -- I wrote this article in mid-2025, but am editing it in late 2026 to prepare it for publication on my blog.  As of right now, I've been using AI agents to write code exclusively for nearly a year.  Most programmers are in the same boat, making such interview gymnastics seem even more silly.}
 
 \ifdefined\embedversion\newpage\fi
 \section{Generating Functions}
-I will not make the attempt here to wax eloquent on generating functions.  Suffice it to say 1) they are weird, and 2) they aren't real functions in the sense that you are ever going to plug anything into $x$ and compute the result.  Generating functions are a mathematical trick which probably could have gotten you burned at the stake in some New England towns I could mention at certain points in history.  They are very powerful, and leverage the mystery of mathematics to make sense out of just about any series of numbers, or combinations of series of numbers.  Folks like Knuth, Polya, Harris, and others have done a much better job than I could ever do of explaining these critters, and they seem to actually enjoy it quite a bit.  Consider the following polynomial:
+I will not make the attempt here to wax eloquent on generating functions.  Suffice it to say 1) they are weird, and 2) they aren't real functions in the sense that you are ever going to plug anything into $x$ and compute the result.  Generating functions are a mathematical trick which probably could have gotten you burned at the stake in some New England towns I could mention at certain points in history.  They are very powerful, and leverage the mystery of mathematics to make sense out of just about any series of numbers, or combinations of series of numbers.  Folks like Knuth,\footcite{concrete} Polya, Harris,\footcite{harris} and others have done a much better job than I could ever do of explaining these critters, and they seem to actually enjoy it quite a bit.  Consider the following polynomial:
 \begin{center}
 $G(x) = a_01 + a_1x + a_2x^2 + \ldots + a_nx^n$
 \end{center}
@@ -61,7 +61,7 @@ Now, believe it or not, we can \textit{encode} any sequence we like into this ge
 
 \ifdefined\embedversion\newpage\fi
 \section{Polya's Problem Statement}
-Given typical American currency options (pennies, nickels, dimes, quarters, and half-dollars), and a putatively infinite supply of each, how many ways are there to arrive at an amount of 50\textcent \,\,using these coins?  What about \$1?  Like many problems in this class, it \textit{sounds} deceptively simple, until you start putting pencil to paper to actually solve it.
+Given typical American currency options (pennies, nickels, dimes, quarters, and half-dollars), and a putatively infinite supply of each, how many ways are there to arrive at an amount of 50\textcent \,\,using these coins?  What about \$1?  Like many problems in this class, it \textit{sounds} simple, until you start putting pencil to paper to actually solve it.
 
 \section{Polya's Construction}
 George Polya, in the aforementioned article published in 1956 titled "On Picture-Writing", set the coin sum problem up to be solved with generating functions where the coefficients of the function correspond to the ways to arrive at a certain value $n$, where $n$ is the exponent of each term $x^n$.
@@ -71,9 +71,9 @@ In Polya's formulation, which I'm modifying \textit{ever so slightly} so that I 
 \begin{center}
 $C_i(x) = 1 + x + x^2 + \ldots + x^i$
 \end{center}
-Don't get too excited.  I'm using $i$ in the equation above to represent an \textit{item} in a series, not $\sqrt{-1}$. I \textit{was} using $n$ but I thought people might get confused later when I used $N_n(x)$ to refer to the generating function for nickels, so I changed it. In \text{this} generating function, the $C$ represents \textit{cents}.  This function is a representation of the different ways we can arrive at a given $i$ in value with pennies.  Since there is one and only one way to use pennies to arrive at a certain value (keep in mind that order doesn't matter, a penny is a penny), it makes sense that all the coefficients of this infinite polynomial are, in fact, $1$.  
+Don't get too excited.  I'm using $i$ in the equation above to represent an \textit{item} in a series, not $\sqrt{-1}$. I \textit{was} using $n$ but I thought people might get confused later when I used $N_n(x)$ to refer to the generating function for nickels, so I changed it. In \text{this} generating function, the $C$ represents \textit{cents}.  This function is a representation of the different ways we can arrive at a given $i$ in value using only pennies.  Since there is one and only one way to use pennies to arrive at a certain value\footnote{Keep in mind that order doesn't matter, a penny is a penny.} it makes sense that all the coefficients of this infinite polynomial are, in fact, $1$.  
 
-Now we're starting to have fun, perhaps.  Perhaps not.  As my mom used to say, "You can't help some people."  If you remember studying infinite series, you'll remember (maybe?) that the infinite series represented by $C_i(x)$ has a \textit{closed form}, namely $\frac{1}{1-x}$.  This will become a recurring (heh-heh) and a very useful theme.
+Now we're starting to have fun, perhaps.  Perhaps not.  As my mom used to say, "You can't help some people."  If you remember studying infinite series, you'll remember\footnote{Maybe?} that the infinite series represented by $C_i(x)$ has a \textit{closed form}, namely $\frac{1}{1-x}$.  This will become a recurring\footnote{Heh-heh.} and a very useful theme.
 
 \subsection{Nickels}
 Next up is the generating function which will encode how to arrive at a given value $i$ using any number of nickels.  Now it should be evident to every mother's son of you that you cannot construct a value of, say, '$7$' using only nickels.  If you truly believe otherwise, perhaps you should consider running for US Congress.  Without further ado, here is the generating function for values that can be formed from any number of nickels:
@@ -83,7 +83,7 @@ $N_i(x) = 1 + x^5 + x^{10} + \ldots + x^i = \displaystyle\frac{1}{1-x^5}$
 I have helpfully provided the closed form for this infinite series as well.  
 
 \subsection{Dimes, Etc.}
-If you guessed that dimes are next, good for you.  If you guessed that something else was next, you are still a quality individual with dynamic proclivities. Here are the generating function for dimes, quarters, and half-dollars, all at once, along with their closed forms:
+If you guessed that dimes are next, good for you.  If you guessed that something else was next, you are still a quality individual with dynamic proclivities. Here are the generating functions for dimes, quarters, and half-dollars, all at once, along with their closed forms:
 \begin{center}
 $D_i(x) = 1 + x^{10} + x^{20} + \ldots + x^i = \displaystyle\frac{1}{1-x^{10}}$
 \\[1em]
@@ -93,7 +93,7 @@ $H_i(x) = 1 + x^{50} + x^{100} + \ldots + x^i = \displaystyle\frac{1}{1-x^{50}}$
 \end{center}
 
 \subsection{Nitty}
-A word about the \textit{missing} terms in these infinite series.  For example, why doesn't $H_i(x)$ have a $x^{20}$ term?  Because there's no way (as joshed about previously) to arrive at a value of '$20$' using only half dollars.  So, \textit{technically} those terms are there, but there coefficients are all $0$, so we omit them for brevity.
+A word about the \textit{missing} terms in these infinite series.  For example, why doesn't $H_i(x)$ have a $x^{20}$ term?  Because there's no way\footnote{As joshed about previously...} to arrive at a value of '$20$' using only half dollars.  So, \textit{technically} those terms are there, but there coefficients are all $0$, so we omit them for brevity.
 
 It is a truism among those who regularly jockey with generating functions that if you want to establish an AND relationship among 2 or more generating functions, then you must multiply the sequences together.  Better said, multiplication of generating functions encodes combining the possibilities represented by the constituent functions. It also suffices to simply multiply the closed forms of such sequences.  Doing so allows you to analyze the combined sequences, which can be very healthy and profitable.
 
@@ -149,7 +149,7 @@ $x^{12}$ coefficients: $d_{12} - d_2 = n_{12} => d_{12} = n_{12} + d_2$
 \end{center}
 Therefore, we may conclude, as Polya does, that $d_i = n_i + d_{i-10}$, which it most certainly does.
 \subsection{A Little Pedantry}
-I'll connect some dots for you so that you can easily see the connection back to the base case, and then we'll take a wild leap of faith that you can justify all by yourself is warranted with a pencil, a piece of paper, and a little furrowing of the brow.
+I'll connect some dots for you so that you can easily see the connection back to the base case, and then we'll take a wild leap of faith that you can justify all by yourself with a pencil, a piece of paper, and a little furrowing of the brow.
 
 On with the pedantry.  We'll do the same operation we just did, but we'll derive the coefficients of the \textit{product} of $N_i(x)$ and $C_i(x)$ in terms of coefficients of $N_i(x)$ and $C_i(x)$ individually.  To wit:
 \begin{equation}
@@ -183,14 +183,14 @@ $\therefore n_i = c_i + n_{i-5}$
 \end{center}
 
 \subsection{The Leap}
-We are now going to leap, but let the record reflect that before we did so, we absolutely, positively, and without a doubt actually \textit{looked} prior to said leap.  Some of you with advanced math degrees who do this kind of thing every day (and twice before breakfast) are probably wondering what took me so long to get here, because you had already either solved the problem or tuned out completely after my first paragraph, way, way up above.  Oh well.  This paper is probably NOT for you, but I'm happy for you to read it, and will kindly take any constructive criticism you have to offer.  For myself, an amateur intellectual, I have to look a lot closer before I make leaps like this, and for a lot longer.  Having been around for approximately half a century, things don't heal like they used to, and so when I make a leap, I have to make absolutely sure it's \textit{safe} and that I will have a soft place to land.  
+We are now going to leap, but let the record reflect that before we did so, we absolutely, positively, and without a doubt actually \textit{looked} prior to said leap.  Some of you with advanced math degrees who do this kind of thing every day\footnote{... and twice before breakfast} are probably wondering what took me so long to get here, because you had already either solved the problem or tuned out completely after my first paragraph, way, way up above.  Oh well.  This paper is probably NOT for you, but I'm happy for you to read it, and will kindly take any constructive criticism you have to offer.  For myself, an amateur intellectual, I have to look a lot closer before I make leaps like this, and for a lot longer.  Having been around for some time, things don't heal like they used to, and so when I make a leap, I have to make absolutely sure it's \textit{safe} and that I will have a soft place to land.  
 
-Having assured myself that this leap will not be fatal (if you remain unassured, you may assuage yourself with paper and pencil), I am going to take a deep breath and make the following leap:
+Having assured myself that this leap will not be fatal,\footnote{If \textit{you} remain unassured, \textit{you} may assuage yourself with paper and pencil.} I am going to take a deep breath and make the following leap:
 \begin{equation}
 a_i = \textit{previous coin added}_i + \textit{current coin}_{i-{\textit{value of current coin}}}
 \tag{\textit{the leap}}
 \end{equation}
-What are we trying to say here?  I'll get to that.  In the meantime, refer to $A_i(x)$ defined in section 5.4 above.  Now, suppose that we \textit{build up} to $A_i(x)$ gradually, instead of all at once:
+What are we trying to say here?  I'll get to that.  In the meantime, refer to $A_i(x)$ defined in the \textit{Nitty} section above.  Now, suppose that we \textit{build up} to $A_i(x)$ gradually, instead of all at once:
 
 \begin{center}
 $Z_i(x) = C_i(x)$ \\
@@ -199,7 +199,7 @@ $K_i(x) = J_i(x) \times D_i(x)$ \\
 $L_i(x) = K_i(x) \times Q_i(x)$ \\
 $A_i(x) = L_i(x) \times H_i(x)$
 \end{center}
-So now, $Z_i(x)$ is identical to $C_i(x)$, encoding the number of ways we can use \textit{cents}, or pennies, to create a given value.  Likewise, $J_i(x)$ encodes the number of ways we can use an infinite number of coins including \textit{cents} \textit{AND} \textit{nickels} to create a given value.  $K_i(x)$ adds \textit{dimes} to the mix, and we keep building until we get to $A_i(x)$, which is the same $A_i(x)$ originally defined way back up in section 5.4, encoding the number of ways to get to a certain value using \textit{all} the coins, if only we could find the coefficients of a given power of $x$, which we (I believe) can now do.    
+So now, $Z_i(x)$ is identical to $C_i(x)$, encoding the number of ways we can use \textit{cents}, or pennies, to create a given value.  Likewise, $J_i(x)$ encodes the number of ways we can use an infinite number of coins including \textit{cents} \textit{AND} \textit{nickels} to create a given value.  $K_i(x)$ adds \textit{dimes} to the mix, and we keep building until we get to $A_i(x)$, which is the same $A_i(x)$ we've seen before,\footnote{AS PER MY PREVIOUS EMAIL.} encoding the number of ways to get to a certain value using \textit{all} the coins, if only we could find the coefficients of a given power of $x$, which we\footnote{I believe!} can now do.    
 
 Let us try to be \textit{slightly} more mathematically rigorous.  Let's define a ordered sequence \textit{COINS} with elements $(1, 5, 10, 25, 50)$.  Let's also define a function \textit{element\_at()} which operates on \textit{COINS} and an integer to yield the element of \textit{COINS} at that index, and another function \textit{size()} which will give us the size of the sequence. Then:
 
@@ -221,9 +221,9 @@ $a_i = 1 + n_{i-5} + d_{i-10} + q_{i-25} + h_{i-50}$
 \end{center}
 So, then, the number of ways we can create a value, of, say '100' with only cents is 1.  It doesn't matter what the value is, there is only one number of ways to do it.  \textit{Quod erat demonstrandum}.
 
-The number of ways we can create a given value using cents AND nickels is to take the number of ways you can create that value with cents, and add it to the number of ways that you can create the value \textit{minus 5} (the value of the nickel) with cents AND nickels.  
+The number of ways we can create a given value using cents AND nickels is to take the number of ways you can create that value with cents, and add it to the number of ways that you can create the value \textit{minus 5}\footnote{The value of the nickel.} with cents AND nickels.  
 
-The number of ways we can create a given value using cents AND nickels AND dimes is to take the number of ways you can create that value with cents, and add it to the number of ways that you can create the value \textit{minus 5} (the value of the nickel) with cents AND nickels, and add THAT to the number of ways that you can create the value \textit{minus 10} using cents AND nickels AND dimes.  
+The number of ways we can create a given value using cents AND nickels AND dimes is to take the number of ways you can create that value with cents, and add it to the number of ways that you can create the value \textit{minus 5}\footnote{Once again, the value of the nickel.} with cents AND nickels, and add THAT to the number of ways that you can create the value \textit{minus 10} using cents AND nickels AND dimes.  
 
 As you can see, this is getting quite complicated.  I don't think we technically \textit{need} a computer quite yet to figure it out, but since spreadsheets are the second best way to do anything, we might consider employing one.  Or, in order to get the worst of both worlds, we'll just implement a table in \LaTeX.
 
@@ -241,7 +241,7 @@ $\{\}$ & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 &
 }
 \end{fullwidth}
 \vspace{2em}
-I snuck an edge case in there on ya!  If there are no coins, i.e. if the set of available coins is equal to the null set, there is 1 way to choose 0 (i.e. stand pat), but there are 0 ways to choose coins from the null set to get to any other value.
+I snuck an edge case in there on ya!  If there are no coins, i.e. if the set of available coins is equal to the null set, there is 1 way to choose 0,\footnote{i.e. -- standing pat.} but there are 0 ways to choose coins from the null set to get to any other value.
 \\[2em]
 \begin{fullwidth}\noindent\resizebox{\linewidth}{!}{%
 \begin{tabular}{||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c||}
@@ -262,7 +262,7 @@ It should already make sense, since we've discussed it \textit{ad nauseam} above
 
 Before we go further, let's walk through the first few values of $\{1,5\}$.  It should be evident that you can't use a nickel to make any amount less than 5\textcent, so since we can only use cents here, there is one way to create a value of 1\textcent, 2\textcent, 3\textcent, or 4\textcent.  BUT, once we get to column 5 (representing, of course, the \textit{value} of 5) we see there are two ways.  That is because we can \textit{either} choose 5 one-cent coins, or 1 five-cent coin in order to achieve that value.  There are no other options.  Reflect back on our recurrence relation $n_i = c_i + n_{i-5}$.  Let's set $i = 5$, and we get $n_5 = c_5 + n_0$, which becomes $n_5 = 1 + 1 = 2$.  Yes, Virginia, $1+1$ still equals 2, whether or not there's a Santa Claus.
 
-If you prefer, you can think of a cell value being formed by adding the value immediately \textit{above} with the value $i$ places to the \textit{left} in the current row.  The cells in play are highlighted in the table above. It should make sense to you that our recurrence can't have \textit{negative} subscripts, since doing so would cause our cheese to slide off our cracker, which would be, at the very least, lamentable.  So, then, more rigor (but again, not \textit{much} more):
+If you prefer, you can think of a cell value being formed by adding the value immediately \textit{above} with the value $i$ places to the \textit{left} in the current row.  The cells in play are highlighted in the table above. It should make sense to you that our recurrence can't have \textit{negative} subscripts, since doing so would cause our cheese to slide off our cracker, which would be, at the very least, lamentable.  So, then, more rigor\footnote{But again, not \textit{much} more...}:
 
 \begin{center}
 \[
@@ -353,7 +353,7 @@ But only what I tell it.
 
 If you thought \textit{I} was pedantic, you may not have had much experience with your friendly neighborhood computer.  Computers are the absolute worst.  With a toddler, you can say "come here" and receive some fairly sensible responses on average.  With a computer, you have to describe to them what "legs" are and what "walking" is and exactly how to do it.  As much flack as toddlers get, they are, again, \textit{on average}, much smarter than an unprogrammed computer.  An unprogrammed computer will just sit there no matter how loudly you yell.  It does not even care about candy very much, which is a cheap way to get a toddler to do pretty much anything that is within their power to do.  If you are very lucky, it \textit{might}, unprompted, blink lights at you nonchalantly.
 
-So, in order for a computer to do useful work for us, we have to break things down into teeny tiny bits, and understand that the computer has no inherent intelligence, not to mention horse sense.  It is really much better at mathematics than a toddler, being able to answer questions like $182832832 + 923949234$ with the greatest of ease, but it can't even display that answer to the screen or print it out without a \textit{lot} of additional instructions. A toddler has \textit{motivations} and the capability to \textit{reason} which makes them able to figure out many problems a computer could never do.  Toddlers are also cute, and computers are decidedly not.  That said, once you come up with the correct series of steps a computer has to do in order to solve a problem, it can solve it reliably and consistently - it will not deviate from its programming whatsoever.  This is also an advantage over toddlers.  Similar, but distinct from, the toddler's mantra of "If it's fun once, it's fun 1000 times," a computer never gets tired of doing the same thing, over and over again.  Humans get bored.  Computers do not.
+So, in order for a computer to do useful work for us, we have to break things down into teeny tiny bits, and understand that the computer has no inherent intelligence, not to mention horse sense.  It is really much better at mathematics than a toddler, being able to answer questions like $182832832 + 923949234$ with the greatest of ease, but it can't even display that answer to the screen or print it out without a \textit{lot} of additional instructions. A toddler has \textit{motivations} and the capability to \textit{reason} which makes them able to figure out many problems a computer could never do.  Toddlers are also cute, and computers are decidedly not.  That said, once you come up with the correct series of steps a computer has to do in order to solve a problem, it can solve it reliably and consistently - it will not deviate from its programming whatsoever.\footnote{That is, as long as \textit{deterministic} programming is what's being discussed.  AI is \textit{non}-deterministic, meaning you \textit{don't} get the same answer every time.  Believe it or not, sometimes this is good.  Let the reader understand.}  This is also an advantage over toddlers.  Similar, but distinct from, the toddler's mantra of "If it's fun once, it's fun 1000 times," a computer never gets tired of doing the same thing, over and over again.  Humans get bored.  Computers do not.
 
 Enough about toddlers vs. computers.  I'm sure you get the point I'm trying to make.  At least I hope you do.  Let's talk about the three most popular ways to solve the coin sum problem: Recursion, Memoization, and Space Optimized Memoization.
 
@@ -412,7 +412,7 @@ coins = [1, 2, 5]
 target = 5
 puts coin_sum(coins, target)  # Output: 4
 \end{lstlisting}
-Memoization, also known as \textit{dynamic programming} (whence \textit{dp} in the code), is descriptive of methodologies which remember previous calculations so that they don't have to be done again.  This solution has $O(nT)$ complexity in space and time, where $n$ is the number of coins and $T$ is the target amount.  
+Memoization, also known as \textit{dynamic programming},\footnote{Whence \textit{dp} in the code ...} is descriptive of methodologies which remember previous calculations so that they don't have to be done again.  This solution has $O(nT)$ complexity in space and time, where $n$ is the number of coins and $T$ is the target amount.  
 
 At the heart of this solution are lines 9-17 which fill in the \textit{dp} table:
 \begin{lstlisting}[firstnumber=9]
@@ -427,7 +427,7 @@ At the heart of this solution are lines 9-17 which fill in the \textit{dp} table
   end
 \end{lstlisting}
 
-\noindent This looks \textit{suspiciously} similar to our "not \textit{much} more" rigorous recurrence relations laid out in section 5.9.  I'll reproduce the definition of $a_i$ here:
+\noindent This looks \textit{suspiciously} similar to our "not \textit{much} more" rigorous recurrence relations laid out in \textit{The Tables Are Turning} above.  I'll reproduce the definition of $a_i$ here:
 \vspace{-1.75em}
 \begin{center}
 \[
@@ -438,7 +438,7 @@ At the heart of this solution are lines 9-17 which fill in the \textit{dp} table
 \]
 \end{center}
 
-\noindent Allow me to attemptify linguisticating this in Americanese for you.  In the final loop of the \textit{each} on line 9, assuming we had the list of coins $\{1, 5, 10, 25, 50\}$ stored in \textit{coins} and our \textit{target} is set to 50, we're going to be building the last row in the full table at the end of section 5.9.  The last coin added would be the half dollar, so on line 11 if $j < coins[i-1]$ will be $j < 50$, then we effectively \textit{pull down} the value from the same column one row above via $dp[i][j] = dp[i - 1][j]$, which is exactly what we're doing in the second case of the $a_i$ recurrence relation.  Contrariwise, in the \textit{else} block on line 14, we see the first case represented as $dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]]$.  This is the same thing as $a_i = q_i + h_{i-50}$ when $i\ge50$.  I trust you can satisfy yourself that the same thing is happening in the recursive version of the code above, albeit a bit more inefficiently.
+\noindent Allow me to attemptify linguisticating this in Americanese for you.  In the final loop of the \textit{each} on line 9, assuming we had the list of coins $\{1, 5, 10, 25, 50\}$ stored in \textit{coins} and our \textit{target} is set to 50, we're going to be building the last row in the full table at the end of \textit{The Tables Are Turning}.  The last coin added would be the half dollar, so on line 11 if $j < coins[i-1]$ will be $j < 50$, then we effectively \textit{pull down} the value from the same column one row above via $dp[i][j] = dp[i - 1][j]$, which is exactly what we're doing in the second case of the $a_i$ recurrence relation.  Contrariwise, in the \textit{else} block on line 14, we see the first case represented as $dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]]$.  This is the same thing as $a_i = q_i + h_{i-50}$ when $i\ge50$.  I trust you can satisfy yourself that the same thing is happening in the recursive version of the code above, albeit a bit more inefficiently.
 
 \subsection{Space-optimized Memoization}
 Of course, we're going to be throwing away most of the two-dimensional \textit{dp} array in the non-space-optimized solution above, so we can do better on space utilization if we throw those results away and use more of an accumulator strategy:
@@ -467,13 +467,11 @@ This solution still has $O(nT)$ time complexity, but we improve the space comple
 \subsection{Enlightenment}
 I have seen some doozies while researching this problem with regard to how people explain what exactly is going on.  I was regularly dissatisfied with the lack of explanation with regard to \textit{why} each iteration of the loops or the recursion is actually tabulating the \textit{ways} that a coin sum can be arrived at with the given coin options at a given step.  I grant this might have been blisteringly obvious for YOU, dear reader, but it was not for your humble correspondent.  
 
-This problem is squarely in the field of combinatorics, although it is not a simple $\binom{n}{k}$ combination or permutation problem.  This problem is in the arena of \textit{partition} problems (another breed of deceptively complex problems) but it does not fit neatly under that umbrella either.  Unfortunately (or fortunately, if you kind of like solving hard puzzles) there are no pat answers to questions about why the code examples above work.  There \textit{are} answers, to be sure, and I think we've explored some of them in this paper.  But they are not \textit{simple} answers and they require some time and space to explain and understand.  Life is like that.
+This problem is squarely in the field of combinatorics, although it is not a simple $\binom{n}{k}$ combination or permutation problem.  This problem is in the arena of \textit{partition} problems\footnote{Another breed of deceptively simple problems which are actually hard.} but it does not fit neatly under that umbrella either.  Unfortunately (or fortunately, if you kind of like solving hard puzzles) there are no pat answers to questions about why the code examples above work.  There \textit{are} answers, to be sure, and I think we've explored some of them in this paper.  But they are not \textit{simple} answers and they require some time and space to explain and understand.  Life is like that.
 
 I say all this to say that this is a \textit{hard} problem.  But, with clever mathematical simplifications, we can master the entire solution space without involving ourselves in a bunch of tedium simply by asking a computer (nicely!) to do the monotonous addition and tabulation for us.  
-\defbibnote{prenote}{
-In addition to the listed resources, I also scoured many websites and YouTube videos too numerous to mention, and, alas, I did not keep track of them, so I could not mention them if I wanted to.  For the code samples, I used ChatGPT and modified the output for the sake of consistency. 
-}
-\nocite{*}
-\printbibliography[heading=bibintoc,title={Ad Fontes},prenote=prenote]
+
+\section{Ad Fontes}
+In addition to the resources cited above, I also scoured many websites and YouTube videos too numerous to mention, and, alas, I did not keep track of them, so I could not mention them even if I wanted to.\footnote{I do not.} For the code samples, I used ChatGPT and modified the output for the sake of consistency.  In order to get a full-orbed understanding of this problem and its history, I highly recommend checking out the original source material.
 
 \end{document}
