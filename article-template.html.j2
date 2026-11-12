@@ -51,7 +51,12 @@
       }
 
       var variant = getPdfVariant();
-      var pdfUrl = "{{ article_name }}-" + variant + ".pdf";
+      // Absolute, not relative: the Adobe viewer downloads the PDF from inside
+      // its own HTTPS iframe, so on a page served over plain HTTP a relative
+      // URL becomes an HTTP fetch from an HTTPS origin and is blocked as mixed
+      // content. Pinning it to site_url keeps the request on HTTPS regardless
+      // of how the page itself was reached.
+      var pdfUrl = "{{ site_url }}{{ page_path }}{{ article_name }}-" + variant + ".pdf";
 
       var adobeDCView = new AdobeDC.View({
         clientId: "{{ adobe_client_id }}",
