@@ -27,7 +27,7 @@
   <div id="adobe-dc-view"></div>
   <div id="footer-bar">
     <div id="footer-title"><a href="../../">Covenantal Biblicist</a> <a href="../../about.html" class="footer-about-link">About</a></div>
-    <div class="build-id" data-build-id="1794427744" data-build-iso="2026-11-11T14:09:04-06:00" data-gc-path="/articles/voting_in_elder_led_churches/"><span class="build-id-text">Build ID: 1794427744</span> &middot; <span class="views">Views: --</span></div>
+    <div class="build-id" data-build-id="1794487798" data-build-iso="2026-11-12T06:49:58-06:00" data-gc-path="/articles/voting_in_elder_led_churches/"><span class="build-id-text">Build ID: 1794487798</span> &middot; <span class="views">Views: --</span></div>
     <div id="footer-icons">
       <a href="voting_in_elder_led_churches.pdf" onclick="window.open(this.href); return false;" title="Open PDF"><i class="fa-solid fa-print"></i></a>
       <div class="share-email-wrap">
@@ -51,7 +51,12 @@
       }
 
       var variant = getPdfVariant();
-      var pdfUrl = "voting_in_elder_led_churches-" + variant + ".pdf";
+      // Absolute, not relative: the Adobe viewer downloads the PDF from inside
+      // its own HTTPS iframe, so on a page served over plain HTTP a relative
+      // URL becomes an HTTP fetch from an HTTPS origin and is blocked as mixed
+      // content. Pinning it to site_url keeps the request on HTTPS regardless
+      // of how the page itself was reached.
+      var pdfUrl = "https://covenantalbiblicist.unitedentropy.com/articles/voting_in_elder_led_churches/voting_in_elder_led_churches-" + variant + ".pdf";
 
       var adobeDCView = new AdobeDC.View({
         clientId: "bd4cb7ccbcdc4940adb98b75683d410a",
