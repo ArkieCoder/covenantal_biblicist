@@ -373,7 +373,10 @@ Both patterns live in `articles/the_sum_of_coins/main.tex` and are reusable:
 - `ADOBE_CLIENT_ID` injected from GitHub secret
 - Python deps installed via OS packages: `python3-pil`, `python3-yaml`, `python3-jinja2`, `python3-pikepdf`
 - Builds all articles, runs Pagefind for search indexing
-- Commits built artifacts (PDFs, HTML, tags/) back to repo with `[skip ci]`
+- Commits built artifacts back to repo with `[skip ci]`: `articles/*/*.pdf`, `articles/*/*.html`, `index.html`, `tags/`, `assets/og/`, `assets/fb/`
+- **Every build output must be in that `git add` list.** `git pull --rebase` refuses to run on a dirty worktree, so an unstaged generated file fails the step with the opaque `error: cannot pull with rebase: You have unstaged changes` (exit 128) rather than naming the file. `assets/` was missing from the list from the workflow's creation until 2026-11-12; it only started mattering once `generate_og_images.py` was repaired, because before that the generator was dying silently and the PNGs never changed
+- A `git status --porcelain` runs just before the `git add` for exactly this reason — if the step ever fails again, that line names the culprit
+- `assets/` can churn by design: CI installs Debian's `python3-pil` (12.x, from Debian *testing*) while local builds use Pillow 11.x, and `optimize=True` in `generate_og_images.py` re-deflates the PNGs with whatever zlib the platform ships. So the first CI run after a local build may commit a binary-only diff for those files. Confirm the pixels match before assuming it is only encoding
 - Uses `git pull --rebase -X theirs origin master` before push (with fallback conflict resolution for generated files) to handle concurrent changes
 - `git config --global --add safe.directory` required (Docker checkout owned by root, CI runs as UID 1001)
 - `actions/configure-pages@v5` runs AFTER the commit step (running it before breaks git credential helpers)
